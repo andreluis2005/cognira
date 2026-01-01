@@ -1,0 +1,262 @@
+[
+    {
+        "id": "q1",
+        "certification": "aws-clf",
+        "domain": "compute",
+        "text": "Qual serviço da AWS é ideal para executar contêineres Docker sem gerenciar servidores?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Amazon EC2"
+            },
+            {
+                "id": "b",
+                "text": "AWS Lambda"
+            },
+            {
+                "id": "c",
+                "text": "AWS Fargate"
+            },
+            {
+                "id": "d",
+                "text": "Amazon S3"
+            }
+        ],
+        "correctOptionId": "c",
+        "explanation": "O AWS Fargate permite executar contêineres sem a necessidade de gerenciar instâncias do EC2, sendo uma solução serverless para contêineres."
+    },
+    {
+        "id": "q2",
+        "certification": "aws-clf",
+        "domain": "storage",
+        "text": "Qual serviço da AWS oferece armazenamento de objetos altamente escalável?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Amazon EBS"
+            },
+            {
+                "id": "b",
+                "text": "Amazon S3"
+            },
+            {
+                "id": "c",
+                "text": "Amazon EFS"
+            },
+            {
+                "id": "d",
+                "text": "Amazon RDS"
+            }
+        ],
+        "correctOptionId": "b",
+        "explanation": "O Amazon S3 é projetado para armazenamento de objetos, oferecendo durabilidade e escalabilidade praticamente ilimitadas."
+    },
+    {
+        "id": "q3",
+        "certification": "aws-clf",
+        "domain": "iam",
+        "text": "Qual o princípio básico de conceder apenas as permissões necessárias para realizar uma tarefa?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Segurança por Obscuridade"
+            },
+            {
+                "id": "b",
+                "text": "Princípio do Menor Privilégio"
+            },
+            {
+                "id": "c",
+                "text": "Autenticação Multifator (MFA)"
+            },
+            {
+                "id": "d",
+                "text": "Responsabilidade Compartilhada"
+            }
+        ],
+        "correctOptionId": "b",
+        "explanation": "O Princípio do Menor Privilégio dita que usuários e serviços devem ter apenas as permissões essenciais para sua função, minimizando riscos."
+    },
+    {
+        "id": "q4",
+        "certification": "aws-clf",
+        "domain": "network",
+        "text": "Qual componente da AWS permite que uma sub-rede privada acesse a internet mantendo-se protegida?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Internet Gateway"
+            },
+            {
+                "id": "b",
+                "text": "NAT Gateway"
+            },
+            {
+                "id": "c",
+                "text": "Virtual Private Gateway"
+            },
+            {
+                "id": "d",
+                "text": "Direct Connect"
+            }
+        ],
+        "correctOptionId": "b",
+        "explanation": "Um NAT Gateway permite que instâncias em sub-redes privadas se conectem à internet, mas impede que a internet inicie conexões com elas."
+    },
+    {
+        "id": "q5",
+        "certification": "aws-clf",
+        "domain": "database",
+        "text": "Qual serviço de banco de dados da AWS é totalmente gerenciado e compatível com MySQL e PostgreSQL?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Amazon DynamoDB"
+            },
+            {
+                "id": "b",
+                "text": "Amazon Redshift"
+            },
+            {
+                "id": "c",
+                "text": "Amazon RDS"
+            },
+            {
+                "id": "d",
+                "text": "Amazon ElastiCache"
+            }
+        ],
+        "correctOptionId": "c",
+        "explanation": "O Amazon RDS (Relational Database Service) facilita a configuração, operação e escalabilidade de bancos de dados relacionais na nuvem."
+    },
+    {
+        "id": "q6",
+        "certification": "aws-clf",
+        "domain": "iam",
+        "text": "Qual ferramenta da AWS pode ser usada para gerenciar o acesso de usuários e permissões de forma centralizada?",
+        "options": [
+            {
+                "id": "a",
+                "text": "AWS Organizations"
+            },
+            {
+                "id": "b",
+                "text": "AWS IAM"
+            },
+            {
+                "id": "c",
+                "text": "AWS CloudTrail"
+            },
+            {
+                "id": "d",
+                "text": "AWS Config"
+            }
+        ],
+        "correctOptionId": "b",
+        "explanation": "O AWS Identity and Access Management (IAM) é o serviço principal para gerenciar identidades de usuários e suas permissões nos recursos da AWS."
+    },
+    {
+        "id": "q7",
+        "certification": "aws-clf",
+        "domain": "compute",
+        "text": "Como é chamada a capacidade de um sistema de ajustar automaticamente seus recursos para lidar com mudanças na demanda?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Alta Disponibilidade"
+            },
+            {
+                "id": "b",
+                "text": "Elasticidade"
+            },
+            {
+                "id": "c",
+                "text": "Tolerância a Falhas"
+            },
+            {
+                "id": "d",
+                "text": "Agilidade"
+            }
+        ],
+        "correctOptionId": "b",
+        "explanation": "Elasticidade é a capacidade de expandir ou reduzir recursos de computação conforme a necessidade, otimizando custos e performance."
+    },
+    {
+        "id": "q8",
+        "certification": "aws-clf",
+        "domain": "storage",
+        "text": "Qual classe de armazenamento do S3 é a mais barata para arquivamento de dados acessados raramente com tempo de recuperação de horas?",
+        "options": [
+            {
+                "id": "a",
+                "text": "S3 Standard"
+            },
+            {
+                "id": "b",
+                "text": "S3 Intelligent-Tiering"
+            },
+            {
+                "id": "c",
+                "text": "S3 Glacier Deep Archive"
+            },
+            {
+                "id": "d",
+                "text": "S3 One Zone-IA"
+            }
+        ],
+        "correctOptionId": "c",
+        "explanation": "O S3 Glacier Deep Archive é a classe de armazenamento de menor custo da AWS, ideal para retenção de dados por longo prazo (arquivamento)."
+    },
+    {
+        "id": "q9",
+        "certification": "aws-clf",
+        "domain": "network",
+        "text": "O que o Amazon CloudFront faz para acelerar a entrega de conteúdo para usuários globais?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Cria sub-redes em todas as regiões"
+            },
+            {
+                "id": "b",
+                "text": "Usa locais de borda (Edge Locations) para cache"
+            },
+            {
+                "id": "c",
+                "text": "Aumenta a largura de banda do Internet Gateway"
+            },
+            {
+                "id": "d",
+                "text": "Compacta automaticamente todos os arquivos"
+            }
+        ],
+        "correctOptionId": "b",
+        "explanation": "O CloudFront é uma CDN (Content Delivery Network) que usa uma rede global de Edge Locations para entregar conteúdo com baixa latência."
+    },
+    {
+        "id": "q10",
+        "certification": "aws-clf",
+        "domain": "database",
+        "text": "Qual serviço de banco de dados NoSQL da AWS é conhecido por sua performance de milissegundos em qualquer escala?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Amazon RDS"
+            },
+            {
+                "id": "b",
+                "text": "Amazon DocumentDB"
+            },
+            {
+                "id": "c",
+                "text": "Amazon DynamoDB"
+            },
+            {
+                "id": "d",
+                "text": "Amazon Neptune"
+            }
+        ],
+        "correctOptionId": "c",
+        "explanation": "O Amazon DynamoDB é um banco de dados de chave-valor e documentos que oferece performance consistente e alta escalabilidade."
+    }
+]

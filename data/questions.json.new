@@ -1,0 +1,31 @@
+[
+  {
+    "id": "aws-001",
+    "certification": "CLF-C02",
+    "domain": "compute",
+    "text": "Qual serviço da AWS permite executar código sem gerenciar servidores?",
+    "options": [
+      { "id": "a", "text": "Amazon EC2" },
+      { "id": "b", "text": "AWS Lambda" },
+      { "id": "c", "text": "Amazon S3" },
+      { "id": "d", "text": "AWS Direct Connect" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "AWS Lambda é um serviço de computação serverless que executa seu código em resposta a eventos."
+  },
+  {
+    "id": "aws-002",
+    "certification": "CLF-C02",
+    "domain": "storage",
+    "text": "Qual serviço é ideal para armazenamento de objetos altamente escalável?",
+    "options": [
+      { "id": "a", "text": "Amazon EBS" },
+      { "id": "b", "text": "Amazon EFS" },
+      { "id": "c", "text": "Amazon S3" },
+      { "id": "d", "text": "Amazon RDS" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Amazon S3 é projetado para armazenar e recuperar qualquer quantidade de dados de qualquer lugar."
+  }
+  // ... Eu gerarei o restante do dataset em blocos ou usarei uma ferramenta para completar.
+]

@@ -1,157 +1,230 @@
+// app/session/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Question, UserProgress } from '@/lib/types';
 import { getUserProgress, saveUserProgress } from '@/lib/storage';
-import { generateSession, updateProgressAfterQuestion } from '@/lib/logic';
-import questionsData from '@/data/questions.json';
+import { TOPICS } from '@/lib/topics';
 
-export default function SessionPage() {
+const MACRO_LABELS: Record<string, string> = {
+    'D1_CLOUD_CONCEPTS': 'D1 — Conceitos de Nuvem',
+    'D2_SECURITY_COMPLIANCE': 'D2 — Segurança e Conformidade',
+    'D3_TECHNOLOGY_SERVICES': 'D3 — Tecnologia e Serviços em Nuvem',
+    'D4_BILLING_SUPPORT': 'D4 — Cobrança, Preço e Suporte'
+};
+
+interface SessionHistoryItem {
+    questionId: string;
+    isCorrect: boolean;
+}
+
+interface AnswerResponse {
+    isCorrect: boolean;
+    explanation: string;
+    correctOptionId: string;
+    nextQuestion: Question | null;
+    updatedProgress: UserProgress;
+}
+
+function SessionContent() {
     const router = useRouter();
-    const [sessionQuestions, setSessionQuestions] = useState<Question[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const searchParams = useSearchParams();
+    const mode = searchParams.get('mode') || 'smart';
+    const targetId = searchParams.get('target');
+
+    const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+    const [history, setHistory] = useState<SessionHistoryItem[]>([]);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
     const [isAnswered, setIsAnswered] = useState(false);
-    const [sessionProgress, setSessionProgress] = useState<UserProgress | null>(null);
-    const [reinforcementCount, setReinforcementCount] = useState(0);
+    const [answerFeedback, setAnswerFeedback] = useState<AnswerResponse | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const progress = getUserProgress();
-        setSessionProgress(progress);
-        const session = generateSession(questionsData as Question[], progress);
-        setSessionQuestions(session);
-    }, []);
+        async function start() {
+            try {
+                const progress = getUserProgress();
+                const res = await fetch('/api/session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        progress,
+                        mode,
+                        targetId: targetId || undefined
+                    })
+                });
+                const data = await res.json();
+                setSessionId(data.sessionId);
+                setCurrentQuestion(data.firstQuestion);
+            } catch (error) {
+                console.error('Erro ao iniciar sessão:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        start();
+    }, [mode, targetId]);
 
     const handleSelect = (id: string) => {
         if (isAnswered) return;
         setSelectedOptionId(id);
     };
 
-    const handleConfirm = () => {
-        if (!selectedOptionId || isAnswered) return;
-        setIsAnswered(true);
+    const handleConfirm = async () => {
+        if (!selectedOptionId || isAnswered || !currentQuestion || !sessionId) return;
+
+        try {
+            const progress = getUserProgress();
+            const res = await fetch('/api/answer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId,
+                    questionId: currentQuestion.id,
+                    selectedOptionId,
+                    history,
+                    progress,
+                    mode,
+                    targetId: targetId || undefined
+                })
+            });
+            const data: AnswerResponse = await res.json();
+
+            if (data.updatedProgress) {
+                saveUserProgress(data.updatedProgress);
+            }
+
+            setAnswerFeedback(data);
+            setIsAnswered(true);
+
+            setHistory(prev => [...prev, {
+                questionId: currentQuestion.id,
+                isCorrect: data.isCorrect
+            }]);
+
+        } catch (error) {
+            console.error('Erro ao processar resposta:', error);
+        }
     };
 
     const handleNext = () => {
-        if (!sessionProgress || !sessionQuestions[currentIndex]) return;
-
-        const currentQuestion = sessionQuestions[currentIndex];
-        const isCorrect = selectedOptionId === currentQuestion.correctOptionId;
-
-        // Update global progress state
-        const updatedProgress = updateProgressAfterQuestion(sessionProgress, currentQuestion, isCorrect);
-        setSessionProgress(updatedProgress);
-        saveUserProgress(updatedProgress);
-
-        // Immediate Error Reinforcement Logic
-        if (!isCorrect && !currentQuestion.isReinforcement && reinforcementCount < 2) {
-            const reinforcedQuestion: Question = {
-                ...currentQuestion,
-                isReinforcement: true
-            };
-            setSessionQuestions(prev => [...prev, reinforcedQuestion]);
-            setReinforcementCount(prev => prev + 1);
-        }
-
-        // Navigation logic
-        if (currentIndex < sessionQuestions.length - 1) {
-            setCurrentIndex(prev => prev + 1);
+        if (answerFeedback?.nextQuestion) {
+            setCurrentQuestion(answerFeedback.nextQuestion);
             setSelectedOptionId(null);
             setIsAnswered(false);
+            setAnswerFeedback(null);
         } else {
-            router.push('/results');
+            const correct = history.filter(h => h.isCorrect).length;
+            const incorrect = history.length - correct;
+            router.push(`/results?correct=${correct}&incorrect=${incorrect}`);
         }
     };
 
-    if (sessionQuestions.length === 0) return <div className="text-center p-20">Preparando sua sessão...</div>;
-
-    const currentQuestion = sessionQuestions[currentIndex];
+    if (loading) return <div className="text-center p-20 text-slate-400">Iniciando motor cognitivo...</div>;
+    if (!currentQuestion) return <div className="text-center p-20 text-rose-400">Sessão encerrada ou erro.</div>;
 
     return (
-        <div className="flex flex-col min-h-[90vh] space-y-6">
-            {/* Progress Header */}
-            <div className="flex items-center space-x-4">
-                <div className="flex-1 h-2 bg-slate-900 rounded-full overflow-hidden">
-                    <div
-                        className="h-full bg-blue-500 transition-all duration-300"
-                        style={{ width: `${((currentIndex + 1) / sessionQuestions.length) * 100}%` }}
-                    />
-                </div>
-                <span className="text-xs font-mono text-slate-500">
-                    {currentIndex + 1} / {sessionQuestions.length}
+        <div className="flex flex-col min-h-[90vh] space-y-6 max-w-2xl mx-auto">
+            {/* Context Header */}
+            <div className="flex items-center justify-between">
+                <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+                    Treino {mode === 'smart' ? 'Inteligente' : mode === 'topic' ? 'por Tópico' : 'por Domínio'}: {history.length + 1}
                 </span>
+                <button onClick={() => router.push('/dashboard')} className="text-xs text-slate-500 hover:text-slate-300">
+                    Sair
+                </button>
             </div>
 
             {/* Question */}
             <div className="flex-1 space-y-8 py-4">
-                <h1 className="text-xl font-medium leading-relaxed text-slate-100">
-                    {currentQuestion.text}
-                </h1>
-
-                <div className="grid gap-3">
-                    {currentQuestion.options.map((option) => {
-                        const isSelected = selectedOptionId === option.id;
-                        const isCorrect = option.id === currentQuestion.correctOptionId;
-                        const showCorrect = isAnswered && isCorrect;
-                        const showWrong = isAnswered && isSelected && !isCorrect;
-
+                <div className="space-y-4">
+                    {(() => {
+                        const topic = TOPICS.find(t => t.id === currentQuestion.topicId);
+                        if (!topic) return null;
                         return (
-                            <button
-                                key={option.id}
-                                onClick={() => handleSelect(option.id)}
-                                disabled={isAnswered}
-                                className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between ${showCorrect ? 'bg-emerald-500/10 border-emerald-500 text-emerald-100' :
-                                    showWrong ? 'bg-rose-500/10 border-rose-500 text-rose-100' :
-                                        isSelected ? 'bg-blue-600/10 border-blue-600 text-blue-100' :
-                                            'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                                    }`}
-                            >
-                                <span>{option.text}</span>
-                                {showCorrect && <span className="text-emerald-500 font-bold ml-2">✓</span>}
-                                {showWrong && <span className="text-rose-500 font-bold ml-2">✗</span>}
-                            </button>
+                            <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] border-l-2 border-blue-500/50 pl-3 py-0.5">
+                                {MACRO_LABELS[topic.macroDomain]} • {topic.label}
+                            </div>
                         );
-                    })}
+                    })()}
+                    <h1 className="text-xl font-medium leading-relaxed text-slate-100">
+                        {currentQuestion.text}
+                        {currentQuestion.isReinforcement && <span className="ml-2 px-2 py-1 bg-blue-500/20 text-blue-400 text-[10px] rounded animate-pulse">REFORÇO</span>}
+                    </h1>
+
+                    <div className="grid gap-3">
+                        {currentQuestion.options.map((option) => {
+                            const isSelected = selectedOptionId === option.id;
+                            const isCorrect = isAnswered && option.id === answerFeedback?.correctOptionId;
+                            const isWrongSelection = isAnswered && isSelected && !answerFeedback?.isCorrect;
+
+                            let buttonStyles = "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
+                            if (isAnswered) {
+                                if (isCorrect) buttonStyles = "bg-emerald-600 border-emerald-500 text-white";
+                                else if (isWrongSelection) buttonStyles = "bg-rose-600 border-rose-500 text-white";
+                            } else if (isSelected) {
+                                buttonStyles = "bg-blue-600/10 border-blue-600 text-blue-100";
+                            }
+
+                            return (
+                                <button
+                                    key={option.id}
+                                    onClick={() => handleSelect(option.id)}
+                                    disabled={isAnswered}
+                                    className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${buttonStyles}`}
+                                >
+                                    <span className="font-medium">{option.text}</span>
+                                    {isCorrect && <span className="text-white bg-emerald-500/30 w-8 h-8 flex items-center justify-center rounded-full font-bold">✓</span>}
+                                    {isWrongSelection && <span className="text-white bg-rose-500/30 w-8 h-8 flex items-center justify-center rounded-full font-bold">✗</span>}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Pure BFF Feedback */}
+                <div className="pt-6">
+                    {isAnswered && answerFeedback ? (
+                        <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                            <div className="flex items-center space-x-2">
+                                <span className={answerFeedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}>
+                                    {answerFeedback.isCorrect ? '★ Excelente!' : '⚠ Atenção ao Conceito'}
+                                </span>
+                            </div>
+                            <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                                {answerFeedback.explanation}
+                            </p>
+                            <button
+                                onClick={handleNext}
+                                className="w-full bg-slate-50 text-slate-950 font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all text-sm"
+                            >
+                                {answerFeedback.nextQuestion ? 'PRÓXIMA QUESTÃO' : 'VER RESULTADOS'}
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handleConfirm}
+                            disabled={!selectedOptionId}
+                            className={`w-full font-bold py-5 rounded-2xl transition-all text-lg shadow-xl ${selectedOptionId
+                                ? 'bg-blue-600 text-white shadow-blue-900/40'
+                                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                                }`}
+                        >
+                            CONFIRMAR RESPOSTA
+                        </button>
+                    )}
                 </div>
             </div>
-
-            {/* Feedback Overlay / Footer */}
-            <div className="pt-6">
-                {isAnswered ? (
-                    <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                        <div className="flex items-center space-x-2">
-                            <span className={selectedOptionId === currentQuestion.correctOptionId ? 'text-emerald-400' : 'text-rose-400'}>
-                                {selectedOptionId === currentQuestion.correctOptionId
-                                    ? (currentQuestion.isReinforcement ? 'Confirmado' : '★ Correto')
-                                    : '⚠ Incorreto!'}
-                            </span>
-                            <span className="text-slate-500">•</span>
-                            <span className="text-xs font-medium uppercase tracking-wider text-slate-500">Explicação</span>
-                        </div>
-                        <p className="text-sm text-slate-300 leading-relaxed">
-                            {currentQuestion.explanation}
-                        </p>
-                        <button
-                            onClick={handleNext}
-                            className="w-full bg-slate-50 text-slate-950 font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all text-sm"
-                        >
-                            PRÓXIMA QUESTÃO
-                        </button>
-                    </div>
-                ) : (
-                    <button
-                        onClick={handleConfirm}
-                        disabled={!selectedOptionId}
-                        className={`w-full font-bold py-5 rounded-2xl transition-all text-lg shadow-xl ${selectedOptionId
-                            ? 'bg-blue-600 text-white shadow-blue-900/40'
-                            : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                            }`}
-                    >
-                        CONFIRMAR RESPOSTA
-                    </button>
-                )}
-            </div>
         </div>
+    );
+}
+
+export default function SessionPage() {
+    return (
+        <Suspense fallback={<div className="text-center p-20 text-slate-400">Carregando parâmetros...</div>}>
+            <SessionContent />
+        </Suspense>
     );
 }

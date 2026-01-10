@@ -130,7 +130,8 @@ export const startSession = (
 
     return {
         sessionId: crypto.randomUUID(),
-        question: prepareForClient(firstQ)
+        question: prepareForClient(firstQ),
+        totalQuestions: Math.min(pool.length, 15)
     };
 };
 
@@ -151,6 +152,7 @@ export const processStep = (
     correctOptionId: string;
     nextQuestion: Partial<Question> | null;
     updatedProgress: UserProgress;
+    totalQuestions: number;
 } => {
     const question = ALL_QUESTIONS.find(q => q.id === questionId);
     if (!question) throw new Error('Question not found');
@@ -279,6 +281,7 @@ export const processStep = (
         explanation: question.explanation,
         correctOptionId: question.correctOptionId,
         nextQuestion: nextQ ? prepareForClient(nextQ) : null,
-        updatedProgress
+        updatedProgress,
+        totalQuestions: Math.min(pool.length, 15)
     };
 };

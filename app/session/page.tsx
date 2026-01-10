@@ -25,6 +25,7 @@ interface AnswerResponse {
     correctOptionId: string;
     nextQuestion: Question | null;
     updatedProgress: UserProgress;
+    totalQuestions?: number;
 }
 
 function SessionContent() {
@@ -40,6 +41,7 @@ function SessionContent() {
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
     const [isAnswered, setIsAnswered] = useState(false);
     const [answerFeedback, setAnswerFeedback] = useState<AnswerResponse | null>(null);
+    const [totalQuestions, setTotalQuestions] = useState(15);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -58,6 +60,7 @@ function SessionContent() {
                 const data = await res.json();
                 setSessionId(data.sessionId);
                 setCurrentQuestion(data.firstQuestion);
+                if (data.totalQuestions) setTotalQuestions(data.totalQuestions);
             } catch (error) {
                 console.error('Erro ao iniciar sessão:', error);
             } finally {
@@ -99,6 +102,8 @@ function SessionContent() {
             setAnswerFeedback(data);
             setIsAnswered(true);
 
+            if (data.totalQuestions) setTotalQuestions(data.totalQuestions);
+
             setHistory(prev => [...prev, {
                 questionId: currentQuestion.id,
                 isCorrect: data.isCorrect
@@ -127,14 +132,28 @@ function SessionContent() {
 
     return (
         <div className="flex flex-col min-h-[90vh] space-y-6 max-w-2xl mx-auto">
-            {/* Context Header */}
-            <div className="flex items-center justify-between">
-                <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">
-                    Treino {mode === 'smart' ? 'Inteligente' : mode === 'topic' ? 'por Tópico' : 'por Domínio'}: {history.length + 1}
-                </span>
-                <button onClick={() => router.push('/dashboard')} className="text-xs text-slate-500 hover:text-slate-300">
-                    Sair
-                </button>
+            {/* Progress & Context */}
+            <div className="space-y-4">
+                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden shadow-inner">
+                    <div
+                        className="bg-blue-500 h-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                        style={{ width: `${((history.length + 1) / totalQuestions) * 100}%` }}
+                    />
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                            {mode === 'smart' ? 'Treino Inteligente' : mode === 'topic' ? 'Treino por Tópico' : 'Treino por Domínio'}
+                        </span>
+                        <span className="text-xs font-mono text-slate-300">
+                            Questão {history.length + 1} de {totalQuestions}
+                        </span>
+                    </div>
+                    <button onClick={() => router.push('/dashboard')} className="text-xs text-slate-500 hover:text-slate-300 font-medium transition-colors">
+                        Sair
+                    </button>
+                </div>
             </div>
 
             {/* Question */}
@@ -151,7 +170,11 @@ function SessionContent() {
                     })()}
                     <h1 className="text-xl font-medium leading-relaxed text-slate-100">
                         {currentQuestion.text}
-                        {currentQuestion.isReinforcement && <span className="ml-2 px-2 py-1 bg-blue-500/20 text-blue-400 text-[10px] rounded animate-pulse">REFORÇO</span>}
+                        {currentQuestion.isReinforcement && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-blue-500/15 text-blue-400 text-[10px] font-bold rounded border border-blue-500/20 animate-pulse">
+                                <span className="mr-1">🧠</span> REFORÇO DE MEMÓRIA
+                            </span>
+                        )}
                     </h1>
 
                     <div className="grid gap-3">

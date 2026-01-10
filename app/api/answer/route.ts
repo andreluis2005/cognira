@@ -18,7 +18,8 @@ export async function POST(request: Request) {
             explanation: result.explanation,
             correctOptionId: result.correctOptionId,
             nextQuestion: result.nextQuestion,
-            updatedProgress: result.updatedProgress, // Retorna para o cliente salvar no localStorage
+            updatedProgress: result.updatedProgress,
+            totalQuestions: result.totalQuestions,
             sessionSummary: {
                 totalSolved: history.length + 1,
                 lastResult: result.isCorrect ? 'correct' : 'incorrect'

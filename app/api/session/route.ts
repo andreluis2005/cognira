@@ -5,11 +5,12 @@ import { getUserProgress } from '@/lib/storage';
 export async function POST(request: Request) {
     try {
         const { progress, mode, targetId } = await request.json();
-        const { sessionId, question } = startSession(progress, mode, targetId);
+        const { sessionId, question, totalQuestions } = startSession(progress, mode, targetId);
 
         return NextResponse.json({
             sessionId,
             firstQuestion: question,
+            totalQuestions,
             mode,
             targetId,
             expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()

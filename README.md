@@ -38,4 +38,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 breve novas features:
 - melhorias na interface
 - melhorias na experiência do usuário
-- 
+- mais e mais

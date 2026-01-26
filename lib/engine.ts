@@ -92,46 +92,146 @@ const prepareForClient = (question: Question): Partial<Question> => {
 };
 
 /**
+ * Determina o alvo de questões FORTES (Strong) baseado no perfil do usuário.
+ * Constraints: Min 1, Max 3.
+ * Advanced (Muitos tópicos fortes) -> Menos injeção (1).
+ * Beginner (Poucos tópicos fortes) -> Mais injeção (3) para confiança.
+ */
+const getStrongQuestionsTarget = (progress: UserProgress): number => {
+    const totalTopics = TOPICS.length;
+    const strongTopics = Object.values(progress.topics).filter(t => t.status === 'STRONG').length;
+    const strongRatio = strongTopics / totalTopics;
+
+    // Advanced: > 50% Strong -> Target 1
+    if (strongRatio > 0.5) return 1;
+    // Intermediate: > 20% Strong -> Target 2
+    if (strongRatio > 0.2) return 2;
+    // Beginner: <= 20% Strong -> Target 3
+    return 3;
+};
+
+/**
+ * Seleciona a próxima questão baseada em pesos e restrições rígidas.
+ */
+const selectNextQuestion = (
+    progress: UserProgress,
+    history: SessionHistoryItem[],
+    mode: 'smart' | 'topic' | 'domain' = 'smart',
+    targetId?: string
+): Question => {
+    // 1. Definir Pool Base
+    let pool = ALL_QUESTIONS;
+    if (mode === 'topic' && targetId) pool = ALL_QUESTIONS.filter(q => q.topicId === targetId);
+    else if (mode === 'domain' && targetId) pool = ALL_QUESTIONS.filter(q => TOPICS.find(t => t.id === q.topicId)?.macroDomain === targetId);
+
+    // Filtrar questões já usadas nesta sessão
+    const usedIds = new Set(history.map(h => h.questionId));
+    let available = pool.filter(q => !usedIds.has(q.id));
+
+    // Fallback crítico
+    if (available.length === 0) return ALL_QUESTIONS[Math.floor(Math.random() * ALL_QUESTIONS.length)];
+
+    // Se NÃO for SMART, seleção aleatória simples
+    if (mode !== 'smart') return available[Math.floor(Math.random() * available.length)];
+
+    // --- LÓGICA SMART PONDERADA ---
+
+    // 1. Identificar Status de cada questão candidata
+    const candidates = available.map(q => {
+        const topic = progress.topics[q.topicId];
+        const status = topic ? topic.status : 'NOT_EVALUATED';
+        return { q, status };
+    });
+
+    // 2. Separar Pools
+    const poolStrong = candidates.filter(c => c.status === 'STRONG');
+    const poolImprove = candidates.filter(c => c.status !== 'STRONG'); // Weak, Evolving, Not Evaluated
+
+    // 3. Verificar Restrições de "Strong"
+    const targetStrong = getStrongQuestionsTarget(progress);
+
+    // Quantas Strong já foram usadas?
+    // Precisamos olhar o histórico e ver o status ATUAL desses tópicos (aproximação aceitável)
+    const usedStrongCount = history.filter(h => {
+        const q = ALL_QUESTIONS.find(aq => aq.id === h.questionId);
+        if (!q) return false;
+        const t = progress.topics[q.topicId];
+        return t && t.status === 'STRONG';
+    }).length;
+
+    const remainingSlots = 15 - history.length;
+    const strongNeeded = Math.max(0, 1 - usedStrongCount); // Garantir Mínimo 1
+    const strongAllowed = Math.max(0, targetStrong - usedStrongCount); // Respeitar Máximo (Target)
+
+    let finalPool: { q: Question, weight: number }[] = [];
+
+    // DECISÃO FORÇADA: Se faltam slots e ainda não atingimos o mínimo 1 STRONG
+    if (remainingSlots <= strongNeeded && poolStrong.length > 0) {
+        // FORÇAR STRONG
+        finalPool = poolStrong.map(c => ({ q: c.q, weight: 1 }));
+    }
+    // DECISÃO BLOQUEADA: Se já atingimos o limite de STRONG
+    else if (strongAllowed <= 0) {
+        // BLOQUEAR STRONG (Usar apenas Improve)
+        // Se Improve estiver vazio (caso raro de usuário 100% strong), liberamos Strong com peso baixo
+        if (poolImprove.length > 0) {
+            finalPool = poolImprove.map(c => {
+                // Pesos Internos
+                let w = 1;
+                if (c.status === 'WEAK' || c.status === 'NOT_EVALUATED') w = 3;
+                if (c.status === 'EVOLVING') w = 2;
+                return { q: c.q, weight: w };
+            });
+        } else {
+            finalPool = poolStrong.map(c => ({ q: c.q, weight: 1 }));
+        }
+    }
+    // DECISÃO PONDERADA (Padrão)
+    else {
+        // Misturar Pools com Pesos Diferenciados
+        poolImprove.forEach(c => {
+            let w = 1;
+            if (c.status === 'WEAK' || c.status === 'NOT_EVALUATED') w = 30; // 3x mais chance que base
+            if (c.status === 'EVOLVING') w = 20; // 2x mais chance
+            finalPool.push({ q: c.q, weight: w });
+        });
+
+        // Inserir Strong (Injeção Controlada)
+        // Ajustamos o peso para que, em média, elas apareçam mas não dominem
+        poolStrong.forEach(c => {
+            finalPool.push({ q: c.q, weight: 5 }); // Peso baixo
+        });
+    }
+
+    // Fallback de segurança se finalPool ficar vazio
+    if (finalPool.length === 0) finalPool = candidates.map(c => ({ q: c.q, weight: 1 }));
+
+    // Seleção Roleta (Weighted Random)
+    const totalWeight = finalPool.reduce((acc, item) => acc + item.weight, 0);
+    let random = Math.random() * totalWeight;
+
+    for (const item of finalPool) {
+        random -= item.weight;
+        if (random <= 0) return item.q;
+    }
+
+    return finalPool[0].q;
+};
+
+/**
  * Decide a PRIMEIRA questão da sessão.
- * Suporta filtragem por Modo: smart (adaptive), topic (focused), domain (focused macro).
  */
 export const startSession = (
     progress: UserProgress,
     mode: 'smart' | 'topic' | 'domain' = 'smart',
     targetId?: string
 ) => {
-    let pool = ALL_QUESTIONS;
-
-    // 1. Aplicar Filtro Base (por Modo)
-    if (mode === 'topic' && targetId) {
-        pool = ALL_QUESTIONS.filter(q => q.topicId === targetId);
-    } else if (mode === 'domain' && targetId) {
-        pool = ALL_QUESTIONS.filter(q => {
-            const topicInfo = TOPICS.find(t => t.id === q.topicId);
-            return topicInfo?.macroDomain === targetId;
-        });
-    }
-
-    // Fallback se o pool estiver vazio (ex: tópico sem questões ainda)
-    if (pool.length === 0) pool = ALL_QUESTIONS;
-
-    // 2. Lógica de Seleção (Priorizando revisão se for SMART)
-    const now = new Date();
-    let priorityPool = pool.filter(q => {
-        const history = progress.questionsHistory[q.id];
-        if (!history) return true;
-        return new Date(history.nextReview) <= now;
-    });
-
-    // Se for modo SMART, podemos ser mais agressivos na priorização
-    // Para modos focados, pegamos o que estiver disponível no pool filtrado
-    const selectedPool = priorityPool.length > 0 ? priorityPool : pool;
-    const firstQ = selectedPool[Math.floor(Math.random() * selectedPool.length)];
+    const question = selectNextQuestion(progress, [], mode, targetId);
 
     return {
         sessionId: crypto.randomUUID(),
-        question: prepareForClient(firstQ),
-        totalQuestions: Math.min(pool.length, 15)
+        question: prepareForClient(question),
+        totalQuestions: 15
     };
 };
 
@@ -256,23 +356,10 @@ export const processStep = (
         nextQ = pool.find(q => q.id === target.questionId) || null;
     }
 
-    // Se não há reforço pendente ou disponível, pegar uma nova baseada em SRS
+    // Se não há reforço pendente ou disponível, pegar uma nova baseada em Algoritmo Ponderado
     if (!nextQ) {
-        // Filtra o que ainda não apareceu nesta sessão
-        const sessionIds = new Set(currentHistory.map(h => h.questionId));
-        const available = pool.filter(q => !sessionIds.has(q.id));
-
-        if (available.length > 0 && currentHistory.length < 15) {
-            if (mode === 'smart') {
-                const now = new Date();
-                const srsAvailable = available.filter(q => {
-                    const h = updatedProgress.questionsHistory[q.id];
-                    return !h || new Date(h.nextReview) <= now;
-                });
-                nextQ = srsAvailable.length > 0 ? srsAvailable[0] : available[0];
-            } else {
-                nextQ = available[Math.floor(Math.random() * available.length)];
-            }
+        if (currentHistory.length < 15) {
+            nextQ = selectNextQuestion(updatedProgress, currentHistory, mode, targetId);
         }
     }
 

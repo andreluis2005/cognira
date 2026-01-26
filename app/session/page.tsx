@@ -17,6 +17,7 @@ const MACRO_LABELS: Record<string, string> = {
 interface SessionHistoryItem {
     questionId: string;
     isCorrect: boolean;
+    phase: 'MAIN' | 'REINFORCEMENT';
 }
 
 interface AnswerResponse {
@@ -42,6 +43,7 @@ function SessionContent() {
     const [isAnswered, setIsAnswered] = useState(false);
     const [answerFeedback, setAnswerFeedback] = useState<AnswerResponse | null>(null);
     const [totalQuestions, setTotalQuestions] = useState(15);
+    const [reinforcementPlan, setReinforcementPlan] = useState<{ total: number; count: number } | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -106,7 +108,8 @@ function SessionContent() {
 
             setHistory(prev => [...prev, {
                 questionId: currentQuestion.id,
-                isCorrect: data.isCorrect
+                isCorrect: data.isCorrect,
+                phase: reinforcementPlan ? 'REINFORCEMENT' : 'MAIN'
             }]);
 
         } catch (error) {
@@ -116,13 +119,33 @@ function SessionContent() {
 
     const handleNext = () => {
         if (answerFeedback?.nextQuestion) {
+            // Strict Transition: Check if we are at the exact end of Main Phase
+            const isMainPhaseDone = !reinforcementPlan && history.length === totalQuestions;
+
+            if (isMainPhaseDone) {
+                // Initialize Reinforcement Plan (0-based)
+                const mainErrors = history.filter(h => !h.isCorrect).length;
+                if (mainErrors > 0) {
+                    setReinforcementPlan({
+                        total: mainErrors,
+                        count: 0
+                    });
+                }
+            } else if (reinforcementPlan) {
+                // Advance Reinforcement Plan
+                setReinforcementPlan(prev => prev ? { ...prev, count: prev.count + 1 } : null);
+            }
+
             setCurrentQuestion(answerFeedback.nextQuestion);
             setSelectedOptionId(null);
             setIsAnswered(false);
             setAnswerFeedback(null);
         } else {
-            const correct = history.filter(h => h.isCorrect).length;
-            const incorrect = history.length - correct;
+            // STRICT STATS: Only count Main Phase questions for the final result
+            // Phase 'MAIN' is the single source of truth for evaluation.
+            const mainHistory = history.filter(h => h.phase === 'MAIN');
+            const correct = mainHistory.filter(h => h.isCorrect).length;
+            const incorrect = mainHistory.length - correct;
             router.push(`/results?correct=${correct}&incorrect=${incorrect}`);
         }
     };
@@ -130,24 +153,43 @@ function SessionContent() {
     if (loading) return <div className="text-center p-20 text-slate-400">Iniciando motor cognitivo...</div>;
     if (!currentQuestion) return <div className="text-center p-20 text-rose-400">Sessão encerrada ou erro.</div>;
 
+    const isReinforcementPhase = !!reinforcementPlan;
+
+    // Strict separation of variables for UI
+    const uiTotal = isReinforcementPhase ? reinforcementPlan.total : totalQuestions;
+
+    // Main Phase: If answered (viewing feedback), use history.length (stable). If not, history.length + 1 (next question).
+    // Reinforcement Phase: Plan.count + 1 (Plan tracks 'previous' count).
+    const uiCurrent = isReinforcementPhase
+        ? reinforcementPlan.count + 1
+        : (isAnswered ? history.length : history.length + 1);
+
+    const progressPercentage = Math.min(100, (uiCurrent / uiTotal) * 100);
+
     return (
         <div className="flex flex-col min-h-[90vh] space-y-6 max-w-2xl mx-auto">
             {/* Progress & Context */}
             <div className="space-y-4">
                 <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden shadow-inner">
                     <div
-                        className="bg-blue-500 h-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                        style={{ width: `${((history.length + 1) / totalQuestions) * 100}%` }}
+                        className={`h-full transition-all duration-700 ease-out ${isReinforcementPhase
+                            ? "bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
+                            : "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                            }`}
+                        style={{ width: `${progressPercentage}%` }}
                     />
                 </div>
 
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-                            {mode === 'smart' ? 'Treino Inteligente' : mode === 'topic' ? 'Treino por Tópico' : 'Treino por Domínio'}
+                        <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isReinforcementPhase ? "text-purple-400" : "text-slate-500"
+                            }`}>
+                            {isReinforcementPhase
+                                ? "Fase de Reforço"
+                                : (mode === 'smart' ? 'Treino Inteligente' : mode === 'topic' ? 'Treino por Tópico' : 'Treino por Domínio')}
                         </span>
                         <span className="text-xs font-mono text-slate-300">
-                            Questão {history.length + 1} de {totalQuestions}
+                            Questão {uiCurrent} de {uiTotal}
                         </span>
                     </div>
                     <button onClick={() => router.push('/dashboard')} className="text-xs text-slate-500 hover:text-slate-300 font-medium transition-colors">

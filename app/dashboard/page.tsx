@@ -58,9 +58,9 @@ export default function Dashboard() {
             <div className="w-full space-y-6">
                 <Link
                     href="/session?mode=smart"
-                    className="flex flex-col items-center justify-center w-full bg-[#97D2FB] text-[#0A0A0B] font-black py-6 rounded-3xl shadow-[0_20px_60px_-12px_rgba(94,173,247,0.3)] hover:shadow-[0_20px_60px_-5px_rgba(94,173,247,0.4)] active:scale-[0.98] transition-all"
+                    className="flex flex-col items-center justify-center w-full bg-[#97D2FB] text-[#0A0A0B] font-black py-5 rounded-3xl shadow-[0_20px_60px_-12px_rgba(94,173,247,0.3)] hover:shadow-[0_20px_60px_-5px_rgba(94,173,247,0.4)] active:scale-[0.98] transition-all"
                 >
-                    <span className="text-xl tracking-tight">Treinar Agora</span>
+                    <span className="text-lg tracking-tight">Treinar Agora</span>
                     <span className="text-xs font-bold opacity-80 uppercase tracking-widest mt-1">10 Minutos • Modo Smart</span>
                 </Link>
 

@@ -1,41 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MemorizaCloud ☁️
 
-## Getting Started
+**MemorizaCloud** é uma plataforma avançada de estudo e memorização ativa, especificamente projetada para profissionais que buscam a certificação **AWS Certified Cloud Practitioner**. 
 
-First, run the development server:
+Diferente de simuladores comuns, o MemorizaCloud utiliza um **Motor Cognitivo** baseado em **Repetição Espaçada (SRS - Spaced Repetition System)** para garantir que você não apenas responda perguntas, mas realmente retenha o conhecimento técnico necessário.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🚀 Principais Funcionalidades
+
+- **🧠 Algoritmo de Memorização Ativa (SRS):** O sistema identifica suas fraquezas e reapresenta os tópicos mais difíceis no momento ideal para consolidar a memória.
+- **📊 Dashboard de Domínios:** Visualize seu progresso em tempo real através dos quatro domínios principais da AWS, com indicadores de prontidão (*Readiness*).
+- **⚡ Sessões de Estudo Inteligentes:** Gere sessões dinâmicas que priorizam perguntas pendentes ou com as quais você teve dificuldade anteriormente.
+- **📈 Feedback Imediato e Reforço:** Errou uma pergunta? O sistema a reintroduz na mesma sessão para garantir o aprendizado imediato.
+- **📱 Experiência Mobile-First:** Design moderno e responsivo, otimizado para estudos rápidos em qualquer lugar.
+
+---
+
+## 🛠️ Stack Tecnológica
+
+O projeto foi construído com as tecnologias mais modernas do ecossistema Web:
+
+- **Framework:** [Next.js 15+](https://nextjs.org/) (App Router)
+- **Linguagem:** [TypeScript](https://www.typescriptlang.org/)
+- **Estilização:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **Estado & Lógica:** React 19 Hooks & Context API
+- **Arquitetura:** BFF (Backend-for-Frontend) para processamento cognitivo.
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+```text
+├── app/                  # Rotas e Páginas (Next.js App Router)
+│   ├── api/              # BFF - Endpoints de sessão e progresso
+│   ├── dashboard/        # Central de controle de estudos
+│   ├── session/          # Interface de execução de questões
+│   └── results/          # Análise de performance pós-sessão
+├── components/           # Componentes UI reutilizáveis
+├── data/                 # Banco de questões e metadados AWS
+├── lib/                  # Core Business Logic
+│   ├── engine.ts         # Motor de memorização (SRS)
+│   ├── storage.ts        # Persistência de dados local
+│   └── topics.ts         # Definição da hierarquia AWS
+└── public/               # Ativos estáticos e imagens
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Como Executar
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Pré-requisitos
+- Node.js 18.x ou superior
+- npm, yarn ou pnpm
 
-## Learn More
+### Instalação
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/memorizacloud.git
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. Instale as dependências:
+```bash
+npm install
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Inicie o servidor de desenvolvimento:
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Acesse em seu navegador: [http://localhost:3000](http://localhost:3000)
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🗺️ Roadmap de Evolução
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] Implementação do Motor Cognitivo (SRS)
+- [x] Dashboard por Domínios e Subdomínios
+- [x] Sistema de Reforço Imediato de Erros
+- [ ] 🚧 Modo Simulado de Exame Original (65 questões/90 min)
+- [ ] 🚧 Gráficos de Evolução Temporal
+- [ ] 🚧 Exportação de Relatórios de Estudo em PDF
 
-breve novas features:
-- melhorias na interface
-- melhorias na experiência do usuário
-- mais e mais
+---
+
+## 📄 Licença
+
+Este projeto é de código aberto e está sob a licença MIT.
+
+---
+
+<p align="center">
+  Desenvolvido com ❤️ para a comunidade Cloud.
+</p>

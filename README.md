@@ -1,8 +1,8 @@
-# MemorizaCloud ☁️
+# Cognira ☁️
 
-**MemorizaCloud** é uma plataforma avançada de estudo e memorização ativa, especificamente projetada para profissionais que buscam a certificação **AWS Certified Cloud Practitioner**. 
+**Cognira** é uma plataforma avançada de estudo e memorização ativa, especificamente projetada para profissionais que buscam a certificação **AWS Certified Cloud Practitioner**. 
 
-Diferente de simuladores comuns, o MemorizaCloud utiliza um **Motor Cognitivo** baseado em **Repetição Espaçada (SRS - Spaced Repetition System)** para garantir que você não apenas responda perguntas, mas realmente retenha o conhecimento técnico necessário.
+Diferente de simuladores comuns, o Cognira utiliza um **Motor Cognitivo** baseado em **Repetição Espaçada (SRS - Spaced Repetition System)** para garantir que você não apenas responda perguntas, mas realmente retenha o conhecimento técnico necessário.
 
 ---
 
@@ -56,7 +56,7 @@ O projeto foi construído com as tecnologias mais modernas do ecossistema Web:
 ### Instalação
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/memorizacloud.git
+git clone https://github.com/seu-usuario/cognira.git
 ```
 
 2. Instale as dependências:

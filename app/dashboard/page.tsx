@@ -29,7 +29,7 @@ export default function Dashboard() {
         <div className="flex flex-col items-center justify-center min-h-[90vh] space-y-12 max-w-md mx-auto px-7 py-10">
             {/* Minimal Header */}
             <header className="absolute top-7 left-0 right-0 flex justify-center">
-                <h1 className="text-[1.15rem] font-bold tracking-tight text-white/50">MemorizaCloud</h1>
+                <h1 className="text-[1.15rem] font-bold tracking-tight text-white/50">Cognira</h1>
             </header>
 
             {/* Cognitive State */}

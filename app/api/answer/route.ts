@@ -4,13 +4,17 @@ import { getUserProgress, saveUserProgress } from '@/lib/storage';
 
 export async function POST(request: Request) {
     try {
-        const { questionId, selectedOptionId, history, progress, mode, targetId } = await request.json();
+        const { questionId, selectedOptionId, history, progress, mode, targetId, sessionId } = await request.json();
 
         if (!progress) {
             throw new Error('Progress data is required');
         }
 
-        const result = processStep(progress, questionId, selectedOptionId, history, mode, targetId);
+        if (!sessionId) {
+            throw new Error('sessionId is required for deterministic execution');
+        }
+
+        const result = processStep(progress, questionId, selectedOptionId, history, sessionId, mode, targetId);
 
         // Retornar feedback E progresso atualizado
         return NextResponse.json({

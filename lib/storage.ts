@@ -2,7 +2,7 @@ import { UserProgress, TopicProgress, MacroDomain } from './types';
 import { TOPICS } from './topics';
 import { deriveMacroTopics } from './engine';
 
-const STORAGE_KEY = 'memorizacloud_progress';
+const STORAGE_KEY = 'cognira_progress';
 
 export function createInitialProgress(): TopicProgress[] {
     return TOPICS.map(topic => ({

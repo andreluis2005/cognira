@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MemorizaCloud - AWS Certification Prep",
+  title: "Cognira - AWS Certification Prep",
   description: "Treinamento diário focado em memorização e erros para certificações AWS.",
 };
 

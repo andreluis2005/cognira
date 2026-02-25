@@ -119,11 +119,9 @@ function SessionContent() {
 
     const handleNext = () => {
         if (answerFeedback?.nextQuestion) {
-            // Strict Transition: Check if we are at the exact end of Main Phase
             const isMainPhaseDone = !reinforcementPlan && history.length === totalQuestions;
 
             if (isMainPhaseDone) {
-                // Initialize Reinforcement Plan (0-based)
                 const mainErrors = history.filter(h => !h.isCorrect).length;
                 if (mainErrors > 0) {
                     setReinforcementPlan({
@@ -132,7 +130,6 @@ function SessionContent() {
                     });
                 }
             } else if (reinforcementPlan) {
-                // Advance Reinforcement Plan
                 setReinforcementPlan(prev => prev ? { ...prev, count: prev.count + 1 } : null);
             }
 
@@ -141,8 +138,6 @@ function SessionContent() {
             setIsAnswered(false);
             setAnswerFeedback(null);
         } else {
-            // STRICT STATS: Only count Main Phase questions for the final result
-            // Phase 'MAIN' is the single source of truth for evaluation.
             const mainHistory = history.filter(h => h.phase === 'MAIN');
             const correct = mainHistory.filter(h => h.isCorrect).length;
             const incorrect = mainHistory.length - correct;
@@ -150,16 +145,25 @@ function SessionContent() {
         }
     };
 
-    if (loading) return <div className="text-center p-20 text-slate-400">Iniciando motor cognitivo...</div>;
-    if (!currentQuestion) return <div className="text-center p-20 text-rose-400">Sessão encerrada ou erro.</div>;
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-400">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-sm font-medium tracking-wide">Iniciando ambiente focado...</p>
+            </div>
+        );
+    }
+
+    if (!currentQuestion) {
+        return (
+            <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-rose-400">
+                Sessão encerrada ou erro.
+            </div>
+        );
+    }
 
     const isReinforcementPhase = !!reinforcementPlan;
-
-    // Strict separation of variables for UI
     const uiTotal = isReinforcementPhase ? reinforcementPlan.total : totalQuestions;
-
-    // Main Phase: If answered (viewing feedback), use history.length (stable). If not, history.length + 1 (next question).
-    // Reinforcement Phase: Plan.count + 1 (Plan tracks 'previous' count).
     const uiCurrent = isReinforcementPhase
         ? reinforcementPlan.count + 1
         : (isAnswered ? history.length : history.length + 1);
@@ -167,70 +171,80 @@ function SessionContent() {
     const progressPercentage = Math.min(100, (uiCurrent / uiTotal) * 100);
 
     return (
-        <div className="flex flex-col min-h-[90vh] space-y-6 max-w-2xl mx-auto">
-            {/* Progress & Context */}
-            <div className="space-y-4">
-                <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden shadow-inner">
+        <div className="bg-slate-950 text-slate-50 font-sans selection:bg-blue-500/30 flex flex-col">
+            <div className="w-full max-w-3xl mx-auto px-4 py-6 md:py-8 flex flex-col flex-1">
+
+                {/* Header / Top Bar */}
+                <header className="flex items-center justify-between mb-4 md:mb-5">
+                    <div className="flex flex-col space-y-0.5">
+                        <span className="text-[0.65rem] md:text-[0.7rem] font-bold text-slate-500 uppercase tracking-widest">
+                            {isReinforcementPhase ? "Fase de Reforço" : "Treino Inteligente"}
+                        </span>
+                        <span className="text-xs md:text-sm font-medium text-slate-300">
+                            Questão <span className="text-white font-bold">{uiCurrent}</span> de {uiTotal}
+                        </span>
+                    </div>
+
+                    <button
+                        onClick={() => router.push('/dashboard')}
+                        className="text-[0.7rem] md:text-xs font-semibold text-slate-500 hover:text-slate-300 uppercase tracking-wider transition-colors px-2.5 md:px-3 py-1.5 rounded-md hover:bg-slate-900 border border-transparent hover:border-slate-800"
+                    >
+                        Sair
+                    </button>
+                </header>
+
+                {/* Minimal Progress Bar */}
+                <div className="w-full bg-slate-900 h-[0.2rem] md:h-1 rounded-full overflow-hidden mb-6 md:mb-8">
                     <div
-                        className={`h-full transition-all duration-700 ease-out ${isReinforcementPhase
-                            ? "bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"
-                            : "bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                            }`}
+                        className={`h-full transition-all duration-700 ease-out bg-slate-400`}
                         style={{ width: `${progressPercentage}%` }}
                     />
                 </div>
 
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${isReinforcementPhase ? "text-purple-400" : "text-slate-500"
-                            }`}>
-                            {isReinforcementPhase
-                                ? "Fase de Reforço"
-                                : (mode === 'smart' ? 'Treino Inteligente' : mode === 'topic' ? 'Treino por Tópico' : 'Treino por Domínio')}
-                        </span>
-                        <span className="text-xs font-mono text-slate-300">
-                            Questão {uiCurrent} de {uiTotal}
-                        </span>
+                {/* Main Content Area */}
+                <main className="flex-1 flex flex-col justify-between md:justify-start">
+
+                    {/* Question Statement */}
+                    <div className="mb-5 md:mb-8 flex-shrink-0">
+                        {(() => {
+                            const topic = TOPICS.find(t => t.id === currentQuestion.topicId);
+                            if (!topic) return null;
+                            return (
+                                <div className="text-[0.65rem] md:text-xs font-bold text-blue-400/80 mb-2.5 md:mb-3 tracking-wide flex items-center gap-2">
+                                    <span className="w-1 h-2.5 md:h-3 bg-blue-500/50 rounded-sm inline-block"></span>
+                                    {MACRO_LABELS[topic.macroDomain]} • {topic.label}
+                                </div>
+                            );
+                        })()}
+
+                        <h1 className="text-lg md:text-[1.35rem] text-slate-50 font-medium leading-relaxed md:leading-snug">
+                            {currentQuestion.text}
+                        </h1>
                     </div>
-                    <button onClick={() => router.push('/dashboard')} className="text-xs text-slate-500 hover:text-slate-300 font-medium transition-colors">
-                        Sair
-                    </button>
-                </div>
-            </div>
 
-            {/* Question */}
-            <div className="flex-1 space-y-8 py-4">
-                <div className="space-y-4">
-                    {(() => {
-                        const topic = TOPICS.find(t => t.id === currentQuestion.topicId);
-                        if (!topic) return null;
-                        return (
-                            <div className="text-[10px] font-black text-blue-400 uppercase tracking-[0.2em] border-l-2 border-blue-500/50 pl-3 py-0.5">
-                                {MACRO_LABELS[topic.macroDomain]} • {topic.label}
-                            </div>
-                        );
-                    })()}
-                    <h1 className="text-xl font-medium leading-relaxed text-slate-100">
-                        {currentQuestion.text}
-                        {currentQuestion.isReinforcement && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 bg-blue-500/15 text-blue-400 text-[10px] font-bold rounded border border-blue-500/20 animate-pulse">
-                                <span className="mr-1">🧠</span> REFORÇO DE MEMÓRIA
-                            </span>
-                        )}
-                    </h1>
-
-                    <div className="grid gap-3">
+                    {/* Options Grid */}
+                    <div className="flex flex-col gap-2 md:gap-3 mb-6 flex-shrink-0">
                         {currentQuestion.options.map((option) => {
                             const isSelected = selectedOptionId === option.id;
                             const isCorrect = isAnswered && option.id === answerFeedback?.correctOptionId;
                             const isWrongSelection = isAnswered && isSelected && !answerFeedback?.isCorrect;
 
-                            let buttonStyles = "bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
+                            // Base styling
+                            let buttonStyles = "bg-slate-900/50 border-slate-800/80 text-slate-300 hover:bg-slate-900 hover:border-slate-700";
+                            let iconOrLetter = null;
+
                             if (isAnswered) {
-                                if (isCorrect) buttonStyles = "bg-emerald-600 border-emerald-500 text-white";
-                                else if (isWrongSelection) buttonStyles = "bg-rose-600 border-rose-500 text-white";
+                                if (isCorrect) {
+                                    buttonStyles = "bg-emerald-950/30 border-emerald-500/50 text-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+                                    iconOrLetter = <span className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[0.65rem] md:text-xs font-bold ml-3">✓</span>;
+                                } else if (isWrongSelection) {
+                                    buttonStyles = "bg-rose-950/30 border-rose-500/50 text-rose-100";
+                                    iconOrLetter = <span className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-[0.65rem] md:text-xs font-bold ml-3">✕</span>;
+                                } else {
+                                    buttonStyles = "bg-slate-950 border-slate-900 text-slate-600 opacity-50";
+                                }
                             } else if (isSelected) {
-                                buttonStyles = "bg-blue-600/10 border-blue-600 text-blue-100";
+                                buttonStyles = "bg-blue-900/20 border-blue-500/50 text-blue-50";
                             }
 
                             return (
@@ -238,49 +252,53 @@ function SessionContent() {
                                     key={option.id}
                                     onClick={() => handleSelect(option.id)}
                                     disabled={isAnswered}
-                                    className={`w-full text-left p-5 rounded-2xl border-2 transition-all flex items-center justify-between group ${buttonStyles}`}
+                                    className={`w-full text-left p-3.5 md:p-4 rounded-xl border transition-all duration-200 flex items-center justify-between group outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${buttonStyles}`}
                                 >
-                                    <span className="font-medium">{option.text}</span>
-                                    {isCorrect && <span className="text-white bg-emerald-500/30 w-8 h-8 flex items-center justify-center rounded-full font-bold">✓</span>}
-                                    {isWrongSelection && <span className="text-white bg-rose-500/30 w-8 h-8 flex items-center justify-center rounded-full font-bold">✗</span>}
+                                    <span className="text-[0.85rem] md:text-[0.95rem] leading-snug break-words pr-2">{option.text}</span>
+                                    {iconOrLetter}
                                 </button>
                             );
                         })}
                     </div>
-                </div>
 
-                {/* Pure BFF Feedback */}
-                <div className="pt-6">
-                    {isAnswered && answerFeedback ? (
-                        <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                            <div className="flex items-center space-x-2">
-                                <span className={answerFeedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}>
-                                    {answerFeedback.isCorrect ? '★ Excelente!' : '⚠ Atenção ao Conceito'}
-                                </span>
+                    {/* Interactions / Feedback Area */}
+                    <div className="mt-auto md:mt-4 pt-2 md:pt-4 pb-2 shrink-0">
+                        {isAnswered && answerFeedback ? (
+                            <div className="space-y-4 md:space-y-5 animate-in slide-in-from-bottom-2 fade-in duration-300">
+                                {/* Professional Feedback Card */}
+                                <div className="p-4 md:p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <h3 className={`font-bold text-[0.7rem] md:text-xs tracking-wide ${answerFeedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                            {answerFeedback.isCorrect ? 'RESPOSTA CORRETA' : 'ANÁLISE DE CONCEITO'}
+                                        </h3>
+                                    </div>
+                                    <p className="text-slate-300 text-[0.85rem] md:text-[0.95rem] leading-relaxed">
+                                        {answerFeedback.explanation}
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={handleNext}
+                                    className="w-full bg-slate-100 hover:bg-white text-slate-950 font-bold text-[0.85rem] md:text-[0.95rem] tracking-wide py-3.5 md:py-4 rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                                >
+                                    {answerFeedback.nextQuestion ? 'PRÓXIMA QUESTÃO' : 'FINALIZAR SESSÃO'}
+                                </button>
                             </div>
-                            <p className="text-sm text-slate-300 leading-relaxed font-medium">
-                                {answerFeedback.explanation}
-                            </p>
+                        ) : (
                             <button
-                                onClick={handleNext}
-                                className="w-full bg-slate-50 text-slate-950 font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all text-sm"
+                                onClick={handleConfirm}
+                                disabled={!selectedOptionId}
+                                className={`w-full font-bold text-[0.85rem] md:text-[0.95rem] tracking-wide py-3.5 md:py-4 rounded-xl transition-all active:scale-[0.98] ${selectedOptionId
+                                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
+                                    : 'bg-slate-900 text-slate-600 cursor-not-allowed border border-slate-800'
+                                    }`}
                             >
-                                {answerFeedback.nextQuestion ? 'PRÓXIMA QUESTÃO' : 'VER RESULTADOS'}
+                                CONFIRMAR ESTA OPÇÃO
                             </button>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={handleConfirm}
-                            disabled={!selectedOptionId}
-                            className={`w-full font-bold py-5 rounded-2xl transition-all text-lg shadow-xl ${selectedOptionId
-                                ? 'bg-blue-600 text-white shadow-blue-900/40'
-                                : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                                }`}
-                        >
-                            CONFIRMAR RESPOSTA
-                        </button>
-                    )}
-                </div>
+                        )}
+                    </div>
+                </main>
+
             </div>
         </div>
     );
@@ -288,7 +306,12 @@ function SessionContent() {
 
 export default function SessionPage() {
     return (
-        <Suspense fallback={<div className="text-center p-20 text-slate-400">Carregando parâmetros...</div>}>
+        <Suspense fallback={
+            <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-400">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-sm font-medium tracking-wide">Iniciando ambiente focado...</p>
+            </div>
+        }>
             <SessionContent />
         </Suspense>
     );

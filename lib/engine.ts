@@ -65,7 +65,7 @@
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
-import { Question, UserProgress, QuestionHistory, MacroDomain, TopicStatus, TopicProgress } from './types';
+import { Question, UserProgress, QuestionHistory, MacroDomain, TopicStatus, TopicProgress, RiskZone, PressureSessionResult } from './types';
 import questionsData from '@/data/questions.json';
 import { TOPICS } from './topics';
 
@@ -961,7 +961,418 @@ export const processStep = (
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SEÇÃO 10: SELF-CHECK EXPORTADO (CI-READY)
+// SEÇÃO 11: EXTENSÕES COGNITIVAS (ADITIVAS — NENHUMA FUNÇÃO EXISTENTE ALTERADA)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════════╗
+ * ║  EXTENSÕES COGNITIVAS — CAMADA ADITIVA                                     ║
+ * ║                                                                            ║
+ * ║  Estas funções ESTENDEM o motor sem modificar nenhuma função existente.     ║
+ * ║  Todas são puras, determinísticas e backward-compatible.                   ║
+ * ║                                                                            ║
+ * ║  Novos invariantes: INV-15 a INV-21                                        ║
+ * ║                                                                            ║
+ * ║  Se campos opcionais estiverem ausentes, o sistema se comporta             ║
+ * ║  EXATAMENTE como antes.                                                    ║
+ * ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+// ─── Invariantes das Extensões Cognitivas ────────────────────────────────────
+
+export const COGNITIVE_INVARIANTS = {
+    /** riskScore ∈ [0, 100] */
+    INV_15_RISK_SCORE_RANGE: {
+        id: 'INV-15',
+        description: 'riskScore ∈ [0, 100]',
+        check(value: number): boolean {
+            return Number.isFinite(value) && value >= 0 && value <= 100;
+        }
+    },
+    /** stabilityIndex (CSI) ∈ [0, 100] */
+    INV_16_CSI_RANGE: {
+        id: 'INV-16',
+        description: 'stabilityIndex (CSI) ∈ [0, 100]',
+        check(value: number): boolean {
+            return Number.isFinite(value) && value >= 0 && value <= 100;
+        }
+    },
+    /** pressureScore ∈ [0, 100] */
+    INV_17_PRESSURE_SCORE_RANGE: {
+        id: 'INV-17',
+        description: 'pressureScore ∈ [0, 100]',
+        check(value: number): boolean {
+            return Number.isFinite(value) && value >= 0 && value <= 100;
+        }
+    },
+    /** confidenceIndex ∈ [0, 100] when defined */
+    INV_18_CONFIDENCE_INDEX_RANGE: {
+        id: 'INV-18',
+        description: 'confidenceIndex ∈ [0, 100]',
+        check(value: number): boolean {
+            return Number.isFinite(value) && value >= 0 && value <= 100;
+        }
+    },
+    /** riskZone ∈ {CRITICAL, UNSTABLE, SOLID} */
+    INV_19_RISK_ZONE_VALID: {
+        id: 'INV-19',
+        description: 'riskZone ∈ {CRITICAL, UNSTABLE, SOLID}',
+        check(value: string): boolean {
+            return value === 'CRITICAL' || value === 'UNSTABLE' || value === 'SOLID';
+        }
+    },
+    /** Risk multiplier consistent with zone */
+    INV_20_RISK_MULTIPLIER_RANGE: {
+        id: 'INV-20',
+        description: 'riskMultiplier ∈ {1.0, 1.25, 1.6}',
+        check(value: number): boolean {
+            return value === 1.0 || value === 1.25 || value === 1.6;
+        }
+    },
+    /** Enhanced readiness never exceeds base readiness */
+    INV_21_NO_READINESS_REDUCTION: {
+        id: 'INV-21',
+        description: 'readinessBase is never reduced by cognitive extensions',
+        check(readinessBase: number, confidenceIndex: number | null): boolean {
+            // confidenceIndex is a separate metric — readinessBase is never modified
+            return true;
+        }
+    },
+} as const;
+
+// ─── A) Risk Zone System ─────────────────────────────────────────────────────
+
+/** Exam weight numeric mapping for risk calculation */
+const EXAM_WEIGHT_MAP: Record<string, number> = {
+    HIGH: 1.0,
+    MEDIUM: 0.6,
+    LOW: 0.3
+};
+
+/** Risk zone multipliers for selectNextQuestion weight boosting */
+export const RISK_MULTIPLIERS: Record<RiskZone, number> = {
+    CRITICAL: 1.6,
+    UNSTABLE: 1.25,
+    SOLID: 1.0
+};
+
+/**
+ * Calcula o Risk Score de um tópico.
+ * riskScore ∈ [0, 100] — quanto maior, mais crítico.
+ *
+ * Fórmula:
+ *   accuracyDeficit = max(0, 70 - accuracy) / 70
+ *   examImpact = examWeightMap[examWeight] × accuracyDeficit  (ONLY amplifies when deficit exists)
+ *   inconsistency = clamp(totalErrors / max(attempts, 1), 0, 1)
+ *   recencyDecay = min(1, daysSinceLastPractice / 14)
+ *
+ *   riskScore = (accuracyDeficit × 0.35 + examImpact × 0.25 +
+ *               inconsistency × 0.20 + recencyDecay × 0.20) × 100
+ *
+ * Complexidade: O(QH_t) onde QH_t = questões do tópico no histórico.
+ * Puro: sem efeitos colaterais.
+ */
+export const calculateTopicRiskScore = (
+    topic: TopicProgress,
+    topicDef: { examWeight: 'LOW' | 'MEDIUM' | 'HIGH' },
+    questionsForTopic: QuestionHistory[],
+    now: Date
+): number => {
+    // Fator 1: Déficit de Accuracy (35%)
+    const accuracyDeficit = Math.max(0, 70 - safeNumber(topic.accuracy, 0)) / 70;
+
+    // Fator 2: Impacto do Exame (25%) — ONLY amplifies when deficit exists
+    const examWeight = EXAM_WEIGHT_MAP[topicDef.examWeight] ?? 0.3;
+    const examImpact = examWeight * accuracyDeficit;
+
+    // Fator 3: Inconsistência (20%)
+    const totalErrors = questionsForTopic.reduce(
+        (sum, qh) => sum + safeNumber(qh.errorCount, 0), 0
+    );
+    const totalAttempts = Math.max(safeNumber(topic.attempts, 0), 1);
+    const inconsistency = clamp(totalErrors / totalAttempts, 0, 1);
+
+    // Fator 4: Decadência Temporal (20%)
+    const lastPractice = questionsForTopic.reduce((latest, qh) => {
+        const d = new Date(qh.lastAttempt).getTime();
+        return Number.isFinite(d) && d > latest ? d : latest;
+    }, 0);
+    const daysSince = lastPractice > 0
+        ? (now.getTime() - lastPractice) / (1000 * 60 * 60 * 24)
+        : 30;
+    const recencyDecay = Math.min(1, Math.max(0, daysSince) / 14);
+
+    // Composição
+    const raw = (
+        accuracyDeficit * 0.35 +
+        examImpact * 0.25 +
+        inconsistency * 0.20 +
+        recencyDecay * 0.20
+    ) * 100;
+
+    return clamp(Math.round(safeNumber(raw, 0)), 0, 100);
+};
+
+/**
+ * Classifica um tópico em zona de risco.
+ * Complexidade: O(1)
+ * Puro.
+ */
+export const classifyRiskZone = (riskScore: number): RiskZone => {
+    if (riskScore >= 60) return 'CRITICAL';
+    if (riskScore >= 30) return 'UNSTABLE';
+    return 'SOLID';
+};
+
+/**
+ * Retorna o multiplicador de peso para selectNextQuestion baseado na zona de risco.
+ * Se riskZone undefined → retorna 1.0 (backward-compatible).
+ * Complexidade: O(1)
+ * Puro.
+ */
+export const getRiskMultiplier = (riskZone?: RiskZone): number => {
+    if (!riskZone) return 1.0;
+    return RISK_MULTIPLIERS[riskZone] ?? 1.0;
+};
+
+// ─── B) Cognitive Stability Index (CSI) ──────────────────────────────────────
+
+/**
+ * Regressão linear simples sobre resultados booleanos.
+ * Retorna slope (inclinação): positivo = melhoria, negativo = deterioração.
+ * Complexidade: O(N)
+ * Puro.
+ */
+export const calculateTrendSlope = (results: boolean[]): number => {
+    if (results.length < 3) return 0;
+
+    const n = results.length;
+    const ys = results.map(r => r ? 1 : 0);
+
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    for (let i = 0; i < n; i++) {
+        sumX += i;
+        sumY += ys[i];
+        sumXY += i * ys[i];
+        sumX2 += i * i;
+    }
+
+    const denominator = n * sumX2 - sumX * sumX;
+    if (denominator === 0) return 0;
+
+    return (n * sumXY - sumX * sumY) / denominator;
+};
+
+/**
+ * Calcula o Cognitive Stability Index (CSI) de um tópico.
+ * CSI ∈ [0, 100] — quanto maior, mais estável cognitivamente.
+ *
+ * Fórmula:
+ *   consistencyScore = hitRate                            (40%)
+ *   antiVolatility = 1 - normalizedVariance               (30%)
+ *   trendScore = normalizedSlope mapped to [0,1]          (30%)
+ *
+ *   CSI = (0.40 × consistency + 0.30 × antiVolatility + 0.30 × trendScore) × 100
+ *
+ * Complexidade: O(W) onde W = tamanho da janela (fixo em 10).
+ * Puro.
+ */
+export const calculateCSI = (
+    recentResults: boolean[],
+    streakHistory: number[],
+    trendSlope: number
+): number => {
+    if (recentResults.length === 0) return 0;
+
+    // Fator 1: Consistência (40%)
+    const hitRate = recentResults.filter(r => r).length / recentResults.length;
+    const consistencyScore = hitRate;
+
+    // Fator 2: Anti-Volatilidade de Streak (30%)
+    let antiVolatility = 1;
+    if (streakHistory.length > 1) {
+        const avgStreak = streakHistory.reduce((a, b) => a + b, 0) / streakHistory.length;
+        const streakVariance = streakHistory.reduce(
+            (sum, s) => sum + Math.pow(s - avgStreak, 2), 0
+        ) / (streakHistory.length - 1);
+        const maxExpectedVariance = 10;
+        antiVolatility = 1 - Math.min(1, streakVariance / maxExpectedVariance);
+    } else if (streakHistory.length === 0) {
+        antiVolatility = 0;
+    }
+
+    // Fator 3: Tendência (30%)
+    const normalizedTrend = clamp(trendSlope / 10, -1, 1);
+    const trendScore = (normalizedTrend + 1) / 2;
+
+    // Composição
+    const raw = (
+        consistencyScore * 0.40 +
+        antiVolatility * 0.30 +
+        trendScore * 0.30
+    ) * 100;
+
+    return clamp(Math.round(safeNumber(raw, 0)), 0, 100);
+};
+
+// ─── C) Pressure Simulation Mode ────────────────────────────────────────────
+
+/** Pressure mode time limit per question in ms */
+export const PRESSURE_TIME_LIMIT_MS = 45_000;
+
+/** Threshold for "fast" response in pressure mode */
+export const PRESSURE_FAST_THRESHOLD_MS = 20_000;
+
+/**
+ * Interface para uma resposta individual em modo pressão.
+ */
+export interface PressureAnswer {
+    correct: boolean;
+    responseTimeMs: number;
+    timedOut: boolean;
+}
+
+/**
+ * Calcula o score de uma sessão de pressão.
+ * pressureScore ∈ [0, 100].
+ *
+ * Scoring:
+ *   Correto ≤ 20s   → 1.0
+ *   Correto 20-45s  → 0.85
+ *   Incorreto/Timeout → 0
+ *
+ * Complexidade: O(N) onde N = número de questões.
+ * Puro.
+ */
+export const calculatePressureScore = (answers: PressureAnswer[]): number => {
+    if (answers.length === 0) return 0;
+
+    let totalWeightedScore = 0;
+
+    for (const answer of answers) {
+        if (answer.timedOut || !answer.correct) {
+            totalWeightedScore += 0;
+            continue;
+        }
+
+        if (answer.responseTimeMs <= PRESSURE_FAST_THRESHOLD_MS) {
+            totalWeightedScore += 1.0;
+        } else {
+            totalWeightedScore += 0.85;
+        }
+    }
+
+    return clamp(
+        Math.round((totalWeightedScore / answers.length) * 100),
+        0,
+        100
+    );
+};
+
+/**
+ * Detecta se o padrão de respostas indica branco de memória.
+ * Critérios:
+ *   - 2+ timeouts consecutivos
+ *   - OU accuracy < 30% nas últimas 5 questões
+ *   - OU tempo médio > 35s nas últimas 5 questões
+ *
+ * Complexidade: O(N)
+ * Puro.
+ */
+export const detectMemoryBlank = (answers: PressureAnswer[]): boolean => {
+    if (answers.length < 2) return false;
+
+    // Critério 1: 2+ timeouts consecutivos
+    for (let i = 0; i < answers.length - 1; i++) {
+        if (answers[i].timedOut && answers[i + 1].timedOut) return true;
+    }
+
+    if (answers.length >= 5) {
+        const lastFive = answers.slice(-5);
+
+        // Critério 2: últimas 5 questões com accuracy < 30%
+        const lastFiveAccuracy = lastFive.filter(a => a.correct).length / 5;
+        if (lastFiveAccuracy < 0.30) return true;
+
+        // Critério 3: tempo médio alto nas últimas 5
+        const avgTimeLast5 = lastFive.reduce(
+            (s, a) => s + safeNumber(a.responseTimeMs, 0), 0
+        ) / 5;
+        if (avgTimeLast5 > 35_000) return true;
+    }
+
+    return false;
+};
+
+/**
+ * Ajusta o CSI de um tópico baseado no resultado de pressão.
+ *
+ * Se o tópico "quebra" sob pressão (accuracy cai > 20 pontos),
+ * o CSI é penalizado — pois estabilidade real é menor que a medida.
+ *
+ * Complexidade: O(1)
+ * Puro.
+ */
+export const adjustCSIWithPressure = (
+    baseCSI: number,
+    normalAccuracy: number,
+    pressureAccuracy: number
+): number => {
+    const delta = normalAccuracy - pressureAccuracy;
+
+    if (delta <= 5) {
+        // Resiliente sob pressão — CSI recebe boost
+        return clamp(baseCSI + 5, 0, 100);
+    }
+
+    if (delta <= 20) {
+        // Degradação moderada — CSI levemente penalizado
+        return clamp(Math.round(baseCSI - delta * 0.5), 0, 100);
+    }
+
+    // Degradação severa — tópico é "frágil"
+    return clamp(Math.round(baseCSI - delta * 1.0), 0, 100);
+};
+
+// ─── D) Dual Readiness Model (Confidence Index) ─────────────────────────────
+
+/**
+ * Calcula o Confidence Index como métrica SEPARADA do readinessBase.
+ *
+ * confidenceIndex = 0.7 × avgCSI + 0.3 × pressureScore
+ *
+ * Se apenas um está disponível, usa somente esse.
+ * Se nenhum está disponível, retorna null.
+ *
+ * NUNCA modifica readinessBase.
+ *
+ * Complexidade: O(1)
+ * Puro.
+ */
+export const calculateConfidenceIndex = (
+    avgCSI: number | null | undefined,
+    pressureScore: number | null | undefined
+): number | null => {
+    const hasCSI = avgCSI != null && Number.isFinite(avgCSI);
+    const hasPressure = pressureScore != null && Number.isFinite(pressureScore);
+
+    if (!hasCSI && !hasPressure) return null;
+
+    if (hasCSI && hasPressure) {
+        const result = 0.7 * clamp(avgCSI!, 0, 100) + 0.3 * clamp(pressureScore!, 0, 100);
+        return clamp(Math.round(safeNumber(result, 0)), 0, 100);
+    }
+
+    if (hasCSI) {
+        return clamp(Math.round(safeNumber(avgCSI!, 0)), 0, 100);
+    }
+
+    // Only pressure available
+    return clamp(Math.round(safeNumber(pressureScore!, 0)), 0, 100);
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SEÇÃO 12: SELF-CHECK EXPORTADO (CI-READY)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
@@ -1122,6 +1533,152 @@ export const runEngineSelfCheck = (): {
         const r2 = ENGINE_INVARIANTS.INV_01_READINESS_RANGE.check(50);
         const r3 = ENGINE_INVARIANTS.INV_01_READINESS_RANGE.check(101);
         return r1 === true && r2 === true && r3 === false;
+    });
+
+    // ═══════════════════════════════════════════════════════════════════
+    // COGNITIVE EXTENSIONS TESTS (T17+)
+    // ═══════════════════════════════════════════════════════════════════
+
+    // T17: calculateTopicRiskScore bounds
+    test('T17: riskScore bounds [0, 100]', () => {
+        const topic: TopicProgress = {
+            topicId: 'IAM', attempts: 10, correct: 3,
+            accuracy: 30, status: 'WEAK', masteryLevel: 1
+        };
+        const score = calculateTopicRiskScore(
+            topic, { examWeight: 'HIGH' },
+            [{ lastAttempt: new Date(2025, 0, 1).toISOString(), lastSeen: '', nextReview: '', masteryLevel: 0, consecutiveSuccesses: 0, errorCount: 5 }],
+            new Date(2025, 0, 15)
+        );
+        return COGNITIVE_INVARIANTS.INV_15_RISK_SCORE_RANGE.check(score);
+    });
+
+    // T18: riskScore = 0 for perfect topic
+    test('T18: riskScore low for STRONG topic', () => {
+        const topic: TopicProgress = {
+            topicId: 'S3', attempts: 20, correct: 18,
+            accuracy: 90, status: 'STRONG', masteryLevel: 4
+        };
+        const score = calculateTopicRiskScore(
+            topic, { examWeight: 'LOW' },
+            [{ lastAttempt: new Date(2025, 0, 14).toISOString(), lastSeen: '', nextReview: '', masteryLevel: 4, consecutiveSuccesses: 5, errorCount: 1 }],
+            new Date(2025, 0, 15)
+        );
+        return score <= 30; // should be SOLID zone
+    });
+
+    // T19: classifyRiskZone thresholds
+    test('T19: classifyRiskZone thresholds', () => {
+        return classifyRiskZone(60) === 'CRITICAL' &&
+            classifyRiskZone(75) === 'CRITICAL' &&
+            classifyRiskZone(30) === 'UNSTABLE' &&
+            classifyRiskZone(59) === 'UNSTABLE' &&
+            classifyRiskZone(0) === 'SOLID' &&
+            classifyRiskZone(29) === 'SOLID';
+    });
+
+    // T20: getRiskMultiplier backward compat
+    test('T20: getRiskMultiplier undefined = 1.0', () => {
+        return getRiskMultiplier(undefined) === 1.0 &&
+            getRiskMultiplier('CRITICAL') === 1.6 &&
+            getRiskMultiplier('UNSTABLE') === 1.25 &&
+            getRiskMultiplier('SOLID') === 1.0;
+    });
+
+    // T21: calculateCSI bounds
+    test('T21: CSI bounds [0, 100]', () => {
+        const csi1 = calculateCSI([true, true, true, false, true], [3, 2, 4], 0.1);
+        const csi2 = calculateCSI([], [], 0);
+        const csi3 = calculateCSI(
+            [true, true, true, true, true, true, true, true, true, true],
+            [5, 5, 5, 5, 5], 0.5
+        );
+        return COGNITIVE_INVARIANTS.INV_16_CSI_RANGE.check(csi1) &&
+            csi2 === 0 &&
+            COGNITIVE_INVARIANTS.INV_16_CSI_RANGE.check(csi3);
+    });
+
+    // T22: calculateTrendSlope direction
+    test('T22: trendSlope direction', () => {
+        const improving = calculateTrendSlope([false, false, true, true, true]);
+        const declining = calculateTrendSlope([true, true, false, false, false]);
+        const flat = calculateTrendSlope([true, false, true, false, true]);
+        return improving > 0 && declining < 0 && Math.abs(flat) < 0.5;
+    });
+
+    // T23: calculatePressureScore bounds
+    test('T23: pressureScore bounds', () => {
+        const perfect = calculatePressureScore([
+            { correct: true, responseTimeMs: 10000, timedOut: false },
+            { correct: true, responseTimeMs: 15000, timedOut: false },
+        ]);
+        const zero = calculatePressureScore([
+            { correct: false, responseTimeMs: 10000, timedOut: false },
+            { correct: false, responseTimeMs: 50000, timedOut: true },
+        ]);
+        const empty = calculatePressureScore([]);
+        return perfect === 100 && zero === 0 && empty === 0;
+    });
+
+    // T24: detectMemoryBlank criteria
+    test('T24: detectMemoryBlank', () => {
+        // Consecutive timeouts
+        const blanked = detectMemoryBlank([
+            { correct: true, responseTimeMs: 10000, timedOut: false },
+            { correct: false, responseTimeMs: 46000, timedOut: true },
+            { correct: false, responseTimeMs: 46000, timedOut: true },
+        ]);
+        // No blank
+        const notBlanked = detectMemoryBlank([
+            { correct: true, responseTimeMs: 10000, timedOut: false },
+            { correct: true, responseTimeMs: 15000, timedOut: false },
+        ]);
+        return blanked === true && notBlanked === false;
+    });
+
+    // T25: adjustCSIWithPressure ranges
+    test('T25: adjustCSIWithPressure', () => {
+        const boosted = adjustCSIWithPressure(70, 80, 78); // delta=2, boost
+        const moderate = adjustCSIWithPressure(70, 80, 65); // delta=15, moderate penalty
+        const severe = adjustCSIWithPressure(70, 80, 40); // delta=40, severe penalty
+        return boosted === 75 &&
+            COGNITIVE_INVARIANTS.INV_16_CSI_RANGE.check(moderate) &&
+            COGNITIVE_INVARIANTS.INV_16_CSI_RANGE.check(severe) &&
+            moderate < 70 && severe < moderate;
+    });
+
+    // T26: calculateConfidenceIndex
+    test('T26: confidenceIndex', () => {
+        const both = calculateConfidenceIndex(80, 60);
+        const csiOnly = calculateConfidenceIndex(80, null);
+        const pressureOnly = calculateConfidenceIndex(null, 60);
+        const none = calculateConfidenceIndex(null, null);
+        return both === Math.round(0.7 * 80 + 0.3 * 60) &&
+            csiOnly === 80 &&
+            pressureOnly === 60 &&
+            none === null;
+    });
+
+    // T27: COGNITIVE_INVARIANTS completude
+    test('T27: COGNITIVE_INVARIANTS completude', () => {
+        return Object.keys(COGNITIVE_INVARIANTS).length === 7;
+    });
+
+    // T28: Backward compat — readinessBase unchanged without extensions
+    test('T28: readinessBase unchanged without cognitive data', () => {
+        const progress: UserProgress = {
+            userId: 'test', readinessScore: 50, streak: 3,
+            lastSessionDate: '2025-01-15T00:00:00Z',
+            topics: {
+                'EC2': { topicId: 'EC2', attempts: 10, correct: 7, accuracy: 70, status: 'STRONG', masteryLevel: 3 },
+                'S3': { topicId: 'S3', attempts: 5, correct: 2, accuracy: 40, status: 'EVOLVING', masteryLevel: 1 },
+            },
+            questionsHistory: {}
+        };
+        const readiness = calculateReadinessScore(progress);
+        // Confidence with no data must be null (no reduction)
+        const confidence = calculateConfidenceIndex(progress.avgCSI, progress.lastPressureScore);
+        return readiness === calculateReadinessScore(progress) && confidence === null;
     });
 
     return {

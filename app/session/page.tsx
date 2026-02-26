@@ -171,11 +171,11 @@ function SessionContent() {
     const progressPercentage = Math.min(100, (uiCurrent / uiTotal) * 100);
 
     return (
-        <div className="bg-slate-950 text-slate-50 font-sans selection:bg-blue-500/30 flex flex-col">
-            <div className="w-full max-w-3xl mx-auto px-4 py-6 md:py-8 flex flex-col flex-1">
+        <div className="bg-slate-950 text-slate-50 font-sans selection:bg-blue-500/30 flex flex-col min-h-screen">
+            <div className="w-full max-w-3xl mx-auto px-4 py-4 md:py-6 flex flex-col flex-1 backdrop-blur-[1px]">
 
                 {/* Header / Top Bar */}
-                <header className="flex items-center justify-between mb-4 md:mb-5">
+                <header className="flex items-center justify-between mb-3 md:mb-4">
                     <div className="flex flex-col space-y-0.5">
                         <span className="text-[0.65rem] md:text-[0.7rem] font-bold text-slate-500 uppercase tracking-widest">
                             {isReinforcementPhase ? "Fase de Reforço" : "Treino Inteligente"}
@@ -194,7 +194,7 @@ function SessionContent() {
                 </header>
 
                 {/* Minimal Progress Bar */}
-                <div className="w-full bg-slate-900 h-[0.2rem] md:h-1 rounded-full overflow-hidden mb-6 md:mb-8">
+                <div className="w-full bg-slate-900 h-[0.15rem] md:h-[0.2rem] rounded-full overflow-hidden mb-4 md:mb-6">
                     <div
                         className={`h-full transition-all duration-700 ease-out bg-slate-400`}
                         style={{ width: `${progressPercentage}%` }}
@@ -202,99 +202,108 @@ function SessionContent() {
                 </div>
 
                 {/* Main Content Area */}
-                <main className="flex-1 flex flex-col justify-between md:justify-start">
+                <main className="flex-1">
+                    <div className={isAnswered ? "lg:flex lg:gap-8 lg:items-start" : ""}>
+                        {/* Coluna Esquerda: Pergunta e Opções */}
+                        <div className={isAnswered ? "lg:w-[65%]" : ""}>
+                            {/* Question Statement */}
+                            <div className="mb-5 md:mb-8 flex-shrink-0">
+                                {(() => {
+                                    const topic = TOPICS.find(t => t.id === currentQuestion.topicId);
+                                    if (!topic) return null;
+                                    return (
+                                        <div className="text-[0.6rem] md:text-[0.7rem] font-bold text-blue-400/80 mb-2 md:mb-2.5 tracking-wide flex items-center gap-2">
+                                            <span className="w-1 h-2.5 md:h-3 bg-blue-500/50 rounded-sm inline-block"></span>
+                                            {MACRO_LABELS[topic.macroDomain]} • {topic.label}
+                                        </div>
+                                    );
+                                })()}
 
-                    {/* Question Statement */}
-                    <div className="mb-5 md:mb-8 flex-shrink-0">
-                        {(() => {
-                            const topic = TOPICS.find(t => t.id === currentQuestion.topicId);
-                            if (!topic) return null;
-                            return (
-                                <div className="text-[0.65rem] md:text-xs font-bold text-blue-400/80 mb-2.5 md:mb-3 tracking-wide flex items-center gap-2">
-                                    <span className="w-1 h-2.5 md:h-3 bg-blue-500/50 rounded-sm inline-block"></span>
-                                    {MACRO_LABELS[topic.macroDomain]} • {topic.label}
-                                </div>
-                            );
-                        })()}
-
-                        <h1 className="text-lg md:text-[1.35rem] text-slate-50 font-medium leading-relaxed md:leading-snug">
-                            {currentQuestion.text}
-                        </h1>
-                    </div>
-
-                    {/* Options Grid */}
-                    <div className="flex flex-col gap-2 md:gap-3 mb-6 flex-shrink-0">
-                        {currentQuestion.options.map((option) => {
-                            const isSelected = selectedOptionId === option.id;
-                            const isCorrect = isAnswered && option.id === answerFeedback?.correctOptionId;
-                            const isWrongSelection = isAnswered && isSelected && !answerFeedback?.isCorrect;
-
-                            // Base styling
-                            let buttonStyles = "bg-slate-900/50 border-slate-800/80 text-slate-300 hover:bg-slate-900 hover:border-slate-700";
-                            let iconOrLetter = null;
-
-                            if (isAnswered) {
-                                if (isCorrect) {
-                                    buttonStyles = "bg-emerald-950/30 border-emerald-500/50 text-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
-                                    iconOrLetter = <span className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[0.65rem] md:text-xs font-bold ml-3">✓</span>;
-                                } else if (isWrongSelection) {
-                                    buttonStyles = "bg-rose-950/30 border-rose-500/50 text-rose-100";
-                                    iconOrLetter = <span className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-[0.65rem] md:text-xs font-bold ml-3">✕</span>;
-                                } else {
-                                    buttonStyles = "bg-slate-950 border-slate-900 text-slate-600 opacity-50";
-                                }
-                            } else if (isSelected) {
-                                buttonStyles = "bg-blue-900/20 border-blue-500/50 text-blue-50";
-                            }
-
-                            return (
-                                <button
-                                    key={option.id}
-                                    onClick={() => handleSelect(option.id)}
-                                    disabled={isAnswered}
-                                    className={`w-full text-left p-3.5 md:p-4 rounded-xl border transition-all duration-200 flex items-center justify-between group outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${buttonStyles}`}
-                                >
-                                    <span className="text-[0.85rem] md:text-[0.95rem] leading-snug break-words pr-2">{option.text}</span>
-                                    {iconOrLetter}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* Interactions / Feedback Area */}
-                    <div className="mt-auto md:mt-4 pt-2 md:pt-4 pb-2 shrink-0">
-                        {isAnswered && answerFeedback ? (
-                            <div className="space-y-4 md:space-y-5 animate-in slide-in-from-bottom-2 fade-in duration-300">
-                                {/* Professional Feedback Card */}
-                                <div className="p-4 md:p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <h3 className={`font-bold text-[0.7rem] md:text-xs tracking-wide ${answerFeedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                            {answerFeedback.isCorrect ? 'RESPOSTA CORRETA' : 'ANÁLISE DE CONCEITO'}
-                                        </h3>
-                                    </div>
-                                    <p className="text-slate-300 text-[0.85rem] md:text-[0.95rem] leading-relaxed">
-                                        {answerFeedback.explanation}
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={handleNext}
-                                    className="w-full bg-slate-100 hover:bg-white text-slate-950 font-bold text-[0.85rem] md:text-[0.95rem] tracking-wide py-3.5 md:py-4 rounded-xl transition-all shadow-sm active:scale-[0.98]"
-                                >
-                                    {answerFeedback.nextQuestion ? 'PRÓXIMA QUESTÃO' : 'FINALIZAR SESSÃO'}
-                                </button>
+                                <h1 className="text-lg md:text-[1.25rem] text-slate-50 font-medium leading-relaxed md:leading-snug">
+                                    {currentQuestion.text}
+                                </h1>
                             </div>
-                        ) : (
-                            <button
-                                onClick={handleConfirm}
-                                disabled={!selectedOptionId}
-                                className={`w-full font-bold text-[0.85rem] md:text-[0.95rem] tracking-wide py-3.5 md:py-4 rounded-xl transition-all active:scale-[0.98] ${selectedOptionId
-                                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
-                                    : 'bg-slate-900 text-slate-600 cursor-not-allowed border border-slate-800'
-                                    }`}
-                            >
-                                CONFIRMAR ESTA OPÇÃO
-                            </button>
+
+                            {/* Options Grid */}
+                            <div className="flex flex-col gap-1.5 md:gap-2 mb-4 flex-shrink-0">
+                                {currentQuestion.options.map((option) => {
+                                    const isSelected = selectedOptionId === option.id;
+                                    const isCorrect = isAnswered && option.id === answerFeedback?.correctOptionId;
+                                    const isWrongSelection = isAnswered && isSelected && !answerFeedback?.isCorrect;
+
+                                    // Base styling
+                                    let buttonStyles = "bg-slate-900/50 border-slate-800/80 text-slate-300 hover:bg-slate-900 hover:border-slate-700";
+                                    let iconOrLetter = null;
+
+                                    if (isAnswered) {
+                                        if (isCorrect) {
+                                            buttonStyles = "bg-emerald-950/30 border-emerald-500/50 text-emerald-100 shadow-[0_0_15px_rgba(16,185,129,0.05)]";
+                                            iconOrLetter = <span className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[0.65rem] md:text-xs font-bold ml-3">✓</span>;
+                                        } else if (isWrongSelection) {
+                                            buttonStyles = "bg-rose-950/30 border-rose-500/50 text-rose-100";
+                                            iconOrLetter = <span className="flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-[0.65rem] md:text-xs font-bold ml-3">✕</span>;
+                                        } else {
+                                            buttonStyles = "bg-slate-950 border-slate-900 text-slate-600 opacity-50";
+                                        }
+                                    } else if (isSelected) {
+                                        buttonStyles = "bg-blue-900/20 border-blue-500/50 text-blue-50";
+                                    }
+
+                                    return (
+                                        <button
+                                            key={option.id}
+                                            onClick={() => handleSelect(option.id)}
+                                            disabled={isAnswered}
+                                            className={`w-full text-left p-3 md:p-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between group outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 ${buttonStyles}`}
+                                        >
+                                            <span className="text-[0.8rem] md:text-[0.9rem] leading-snug break-words pr-2">{option.text}</span>
+                                            {iconOrLetter}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Confirm Button (Only shown when not answered) */}
+                            {!isAnswered && (
+                                <div className="mt-auto md:mt-2 pt-1 md:pt-2 pb-1 shrink-0">
+                                    <button
+                                        onClick={handleConfirm}
+                                        disabled={!selectedOptionId}
+                                        className={`w-full font-bold text-[0.8rem] md:text-[0.9rem] tracking-wide py-3 md:py-3.5 rounded-xl transition-all active:scale-[0.98] ${selectedOptionId
+                                            ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
+                                            : 'bg-slate-900 text-slate-600 cursor-not-allowed border border-slate-800'
+                                            }`}
+                                    >
+                                        CONFIRMAR ESTA OPÇÃO
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Coluna Direita: Feedback e Botão Próxima (Somente quando respondido) */}
+                        {isAnswered && answerFeedback && (
+                            <div className="mt-6 lg:mt-0 lg:w-[35%] animate-in slide-in-from-bottom-2 lg:slide-in-from-right-2 fade-in duration-300">
+                                <div className="space-y-4 md:space-y-5">
+                                    {/* Professional Feedback Card */}
+                                    <div className="p-3.5 md:p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-sm">
+                                        <div className="flex items-center gap-2 mb-1.5">
+                                            <h3 className={`font-bold text-[0.65rem] md:text-[0.7rem] tracking-wide ${answerFeedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                                {answerFeedback.isCorrect ? 'RESPOSTA CORRETA' : 'ANÁLISE DE CONCEITO'}
+                                            </h3>
+                                        </div>
+                                        <p className="text-slate-300 text-[0.8rem] md:text-[0.9rem] leading-relaxed">
+                                            {answerFeedback.explanation}
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        onClick={handleNext}
+                                        className="w-full bg-slate-100 hover:bg-white text-slate-950 font-bold text-[0.8rem] md:text-[0.9rem] tracking-wide py-3 md:py-3.5 rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                                    >
+                                        {answerFeedback.nextQuestion ? 'PRÓXIMA QUESTÃO' : 'FINALIZAR SESSÃO'}
+                                    </button>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </main>

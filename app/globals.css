@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  --background: #111112;
+  --foreground: #FFFFFF;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+}
+
+@utility glow-bar {
+  box-shadow: 0 0 10px 1px rgba(94, 173, 247, 0.3);
+}
+
+@utility primary-card {
+  background: #1C1C1E;
+  border: 1px solid #2C2C2E;
+  border-radius: 1.5rem;
+}
+
+@utility secondary-bar {
+  background: #2C2C2E;
+}

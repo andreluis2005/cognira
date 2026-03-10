@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+<<<<<<< HEAD
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
@@ -20,13 +21,27 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "zod": "^4.3.6"
+=======
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "^16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+>>>>>>> eff284d24687d41f514a457613875f1bddc984b2
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+<<<<<<< HEAD
     "drizzle-kit": "^0.31.9",
+=======
+>>>>>>> eff284d24687d41f514a457613875f1bddc984b2
     "eslint": "^10.0.2",
     "eslint-config-next": "^16.1.6",
     "tailwindcss": "^4",

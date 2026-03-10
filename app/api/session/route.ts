@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { startSession } from '@/lib/engine';
+<<<<<<< HEAD
 import { createProgramStudySession, loadPersistedProgramProgress } from '@/lib/db/program-progress';
 import { ensurePlatformUser } from '@/lib/db/account';
 import { startProgramSession } from '@/lib/program-session';
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
             });
         }
 
+=======
+import { getUserProgress } from '@/lib/storage';
+
+export async function POST(request: Request) {
+    try {
+        const { progress, mode, targetId } = await request.json();
+>>>>>>> eff284d24687d41f514a457613875f1bddc984b2
         const { sessionId, question, totalQuestions } = startSession(progress, mode, targetId);
 
         return NextResponse.json({

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { processStep } from '@/lib/engine';
+<<<<<<< HEAD
 import { ensurePlatformUser } from '@/lib/db/account';
 import { loadPersistedProgramProgress, syncPersistedProgramProgress } from '@/lib/db/program-progress';
 import { getProgramQuestionMap, processProgramStep } from '@/lib/program-session';
@@ -8,6 +9,13 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: Request) {
     try {
         const { questionId, selectedOptionId, history, progress, mode, targetId, sessionId, programId } = await request.json();
+=======
+import { getUserProgress, saveUserProgress } from '@/lib/storage';
+
+export async function POST(request: Request) {
+    try {
+        const { questionId, selectedOptionId, history, progress, mode, targetId, sessionId } = await request.json();
+>>>>>>> eff284d24687d41f514a457613875f1bddc984b2
 
         if (!progress) {
             throw new Error('Progress data is required');
@@ -17,6 +25,7 @@ export async function POST(request: Request) {
             throw new Error('sessionId is required for deterministic execution');
         }
 
+<<<<<<< HEAD
         if (programId) {
             const supabase = await createClient();
             const { data } = await supabase.auth.getUser();
@@ -50,6 +59,8 @@ export async function POST(request: Request) {
             });
         }
 
+=======
+>>>>>>> eff284d24687d41f514a457613875f1bddc984b2
         const result = processStep(progress, questionId, selectedOptionId, history, sessionId, mode, targetId);
 
         // Retornar feedback E progresso atualizado

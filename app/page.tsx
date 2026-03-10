@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Link from 'next/link';
 import { listRecommendedPrograms, listTopCreators } from '@/lib/db/queries';
 import { createClient } from '@/lib/supabase/server';
@@ -202,4 +203,10 @@ export default async function HomePage() {
             ) : null}
         </main>
     );
+=======
+import { redirect } from 'next/navigation';
+
+export default function Home() {
+  redirect('/dashboard');
+>>>>>>> eff284d24687d41f514a457613875f1bddc984b2
 }

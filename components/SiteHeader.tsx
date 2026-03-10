@@ -3,7 +3,7 @@ import { listUserRoles } from '@/lib/db/account';
 import { createClient } from '@/lib/supabase/server';
 
 const navItems = [
-    { href: '/programs', label: 'Programas' },
+    { href: '/programs', label: 'Programs' },
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/creator', label: 'Creator' },
 ];
@@ -25,7 +25,7 @@ export default async function SiteHeader() {
                         href={data.user ? '/session?mode=smart' : '/signup'}
                         className="rounded-full bg-sky-300 px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-black md:hidden"
                     >
-                        {data.user ? 'Estudar' : 'Entrar'}
+                        {data.user ? 'Study' : 'Log in'}
                     </Link>
                 </div>
 
@@ -45,7 +45,7 @@ export default async function SiteHeader() {
                             href="/admin/review"
                             className="rounded-full px-3 py-2 transition hover:bg-zinc-900 hover:text-white"
                         >
-                            Revisao
+                            Review
                         </Link>
                     ) : null}
 
@@ -55,13 +55,13 @@ export default async function SiteHeader() {
                                 href="/account"
                                 className="rounded-full border border-zinc-700 px-3 py-2 text-zinc-200 transition hover:border-zinc-500 hover:text-white"
                             >
-                                Conta
+                                Account
                             </Link>
                             <Link
                                 href="/session?mode=smart"
                                 className="hidden rounded-full bg-sky-300 px-4 py-2 text-black md:inline-flex"
                             >
-                                Estudar
+                                Study
                             </Link>
                         </>
                     ) : (
@@ -70,13 +70,13 @@ export default async function SiteHeader() {
                                 href="/login"
                                 className="rounded-full border border-zinc-700 px-3 py-2 text-zinc-200 transition hover:border-zinc-500 hover:text-white"
                             >
-                                Entrar
+                                Log in
                             </Link>
                             <Link
                                 href="/signup"
                                 className="hidden rounded-full bg-sky-300 px-4 py-2 text-black md:inline-flex"
                             >
-                                Criar conta
+                                Sign up
                             </Link>
                         </>
                     )}

@@ -23,16 +23,16 @@ export default async function NewProgramPage({
                     <Link href="/creator" className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">
                         Creator Studio
                     </Link>
-                    <h1 className="text-4xl font-black tracking-tight">Novo programa</h1>
+                    <h1 className="text-4xl font-black tracking-tight">New program</h1>
                     <p className="text-sm text-zinc-400">
-                        Primeiro CRUD real do Cognira. A ideia aqui e criar a casca do programa sem encostar na engine.
+                        First Cognira CRUD. The idea here is to create the program shell without touching the engine.
                     </p>
                 </div>
 
                 <form action={createProgram} className="space-y-5 rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6">
                     <div className="space-y-2">
                         <label htmlFor="title" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                            Titulo
+                            Title
                         </label>
                         <input
                             id="title"
@@ -44,7 +44,7 @@ export default async function NewProgramPage({
 
                     <div className="space-y-2">
                         <label htmlFor="short_description" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                            Descricao curta
+                            Short description
                         </label>
                         <textarea
                             id="short_description"
@@ -58,25 +58,25 @@ export default async function NewProgramPage({
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <label htmlFor="subject_area" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                                Area
+                                Subject area
                             </label>
                             <input
                                 id="subject_area"
                                 name="subject_area"
                                 required
-                                placeholder="AWS, ENEM, Portugues, Matematica..."
+                                placeholder="AWS, SAT, Math, Science..."
                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
                             />
                         </div>
 
                         <div className="space-y-2">
                             <label htmlFor="exam_type" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                                Tipo de prova
+                                Exam type
                             </label>
                             <input
                                 id="exam_type"
                                 name="exam_type"
-                                placeholder="Certificacao, concurso, vestibular..."
+                                placeholder="Certification, admission, civil service..."
                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
                             />
                         </div>
@@ -85,31 +85,31 @@ export default async function NewProgramPage({
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <label htmlFor="monetization_type" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                                Monetizacao
+                                Monetization
                             </label>
                             <select
                                 id="monetization_type"
                                 name="monetization_type"
                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
                             >
-                                <option value="free">Gratis</option>
-                                <option value="donation">Doacao</option>
-                                <option value="paid">Pago</option>
+                                <option value="free">Free</option>
+                                <option value="donation">Donation</option>
+                                <option value="paid">Paid</option>
                             </select>
                         </div>
 
                         <div className="space-y-2">
                             <label htmlFor="visibility" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                                Visibilidade
+                                Visibility
                             </label>
                             <select
                                 id="visibility"
                                 name="visibility"
                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
                             >
-                                <option value="public">Publico</option>
-                                <option value="private">Privado</option>
-                                <option value="unlisted">Nao listado</option>
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                                <option value="unlisted">Unlisted</option>
                             </select>
                         </div>
                     </div>
@@ -125,10 +125,10 @@ export default async function NewProgramPage({
                             type="submit"
                             className="rounded-2xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black"
                         >
-                            Criar programa
+                            Create program
                         </button>
                         <Link href="/creator" className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-bold text-zinc-200">
-                            Voltar
+                            Back
                         </Link>
                     </div>
                 </form>

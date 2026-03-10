@@ -172,7 +172,7 @@ export default async function ProgramPage({
                     <div className="mt-6 grid gap-4 lg:grid-cols-2">
                         {program.topicPreview.length === 0 ? (
                             <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-500">
-                                Este programa ainda nao tem topicos publicos suficientes para exibir um mapa inicial.
+                                This program does not have enough public topics yet to display an initial map.
                             </div>
                         ) : (
                             program.topicPreview.map((topic) => (
@@ -211,7 +211,7 @@ export default async function ProgramPage({
                         <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">1. Entre</p>
                         <p className="mt-3 text-lg font-black">Comece por uma sessao curta</p>
                         <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                            Nao precisa esperar estar pronto. A primeira sessao ja cria contexto para o Cognira orientar a retomada.
+                            No need to wait until you are fully ready. The first session already creates context for Cognira to guide your next steps.
                         </p>
                     </div>
                     <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-950/60 p-6">
@@ -225,7 +225,7 @@ export default async function ProgramPage({
                         <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">3. Reforce</p>
                         <p className="mt-3 text-lg font-black">Retorne ao que realmente importa</p>
                         <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-                            O objetivo nao e responder mais. E memorizar melhor o que pode fazer diferenca no dia da prova.
+                            The goal is not just answering more. It is memorizing better what can make a difference on exam day.
                         </p>
                     </div>
                 </section>
@@ -242,7 +242,7 @@ export default async function ProgramPage({
                     <div className="mt-6 grid gap-4 lg:grid-cols-2">
                         {program.reviews.length === 0 ? (
                             <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-500">
-                                Este programa ainda nao recebeu avaliacoes publicas.
+                                This program hasn't received public ratings yet.
                             </div>
                         ) : (
                             program.reviews.map((review, index) => (

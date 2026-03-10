@@ -12,10 +12,10 @@ export default async function SignupPage({
         <main className="min-h-screen bg-[#0A0A0B] px-6 py-10 text-white">
             <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center gap-8">
                 <div className="space-y-3">
-                    <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-400">Novo acesso</p>
-                    <h1 className="text-4xl font-black tracking-tight">Criar conta</h1>
+                    <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-400">New access</p>
+                    <h1 className="text-4xl font-black tracking-tight">Sign up</h1>
                     <p className="text-sm text-zinc-400">
-                        Uma conta unica para estudar, criar programas e evoluir com a plataforma.
+                        A single account to study, create programs, and evolve with the platform.
                     </p>
                 </div>
 
@@ -23,7 +23,7 @@ export default async function SignupPage({
                     <input type="hidden" name="redirect_to" value={params.redirectTo || '/dashboard'} />
                     <div className="space-y-2">
                         <label htmlFor="full_name" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                            Nome
+                            Name
                         </label>
                         <input
                             id="full_name"
@@ -49,7 +49,7 @@ export default async function SignupPage({
 
                     <div className="space-y-2">
                         <label htmlFor="password" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                            Senha
+                            Password
                         </label>
                         <input
                             id="password"
@@ -71,14 +71,14 @@ export default async function SignupPage({
                         type="submit"
                         className="w-full rounded-2xl bg-emerald-300 px-4 py-4 text-sm font-black uppercase tracking-[0.2em] text-black transition hover:bg-emerald-200"
                     >
-                        Criar conta
+                        Sign up
                     </button>
                 </form>
 
                 <p className="text-sm text-zinc-500">
-                    Ja tem conta?{' '}
+                    Already have an account?{' '}
                     <Link href={params.redirectTo ? `/login?redirectTo=${encodeURIComponent(params.redirectTo)}` : '/login'} className="font-bold text-zinc-200">
-                        Entrar
+                        Log in
                     </Link>
                 </p>
             </div>

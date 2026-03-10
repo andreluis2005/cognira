@@ -8,10 +8,10 @@ import { getUserProgress, saveUserProgress } from '@/lib/storage';
 import { TOPICS } from '@/lib/topics';
 
 const MACRO_LABELS: Record<string, string> = {
-    D1_CLOUD_CONCEPTS: 'D1 - Conceitos de Nuvem',
-    D2_SECURITY_COMPLIANCE: 'D2 - Seguranca e Conformidade',
-    D3_TECHNOLOGY_SERVICES: 'D3 - Tecnologia e Servicos em Nuvem',
-    D4_BILLING_SUPPORT: 'D4 - Cobranca, Preco e Suporte',
+    D1_CLOUD_CONCEPTS: 'D1 - Cloud Concepts',
+    D2_SECURITY_COMPLIANCE: 'D2 - Security and Compliance',
+    D3_TECHNOLOGY_SERVICES: 'D3 - Technology and Cloud Services',
+    D4_BILLING_SUPPORT: 'D4 - Billing and Pricing',
 };
 
 interface SessionHistoryItem {
@@ -90,7 +90,7 @@ function SessionContent() {
                 setProgramTitle(data.programTitle || null);
                 if (data.totalQuestions) setTotalQuestions(data.totalQuestions);
             } catch (error) {
-                console.error('Erro ao iniciar sessao:', error);
+                console.error('Error starting session:', error);
             } finally {
                 setLoading(false);
             }
@@ -142,7 +142,7 @@ function SessionContent() {
                 phase: reinforcementPlan ? 'REINFORCEMENT' : 'MAIN',
             }]);
         } catch (error) {
-            console.error('Erro ao processar resposta:', error);
+            console.error('Error processing answer:', error);
         }
     };
 
@@ -187,8 +187,8 @@ function SessionContent() {
         }
     };
 
-    if (loading) return <div className="p-20 text-center text-slate-400">Iniciando motor cognitivo...</div>;
-    if (!currentQuestion) return <div className="p-20 text-center text-rose-400">Sessao encerrada ou erro.</div>;
+    if (loading) return <div className="p-20 text-center text-slate-400">Initializing cognitive engine...</div>;
+    if (!currentQuestion) return <div className="p-20 text-center text-rose-400">Session ended or error.</div>;
 
     const isReinforcementPhase = Boolean(reinforcementPlan);
     const reinforcement = reinforcementPlan ?? { total: 0, count: 0 };
@@ -208,12 +208,12 @@ function SessionContent() {
         ? Math.round((history.filter((item) => item.isCorrect).length / history.length) * 100)
         : 0;
     const topicStatusLabel = currentTopicProgress?.status === 'WEAK'
-        ? 'Fragil'
+        ? 'Weak'
         : currentTopicProgress?.status === 'EVOLVING'
-            ? 'Em evolucao'
+            ? 'Evolving'
             : currentTopicProgress?.status === 'STRONG'
-                ? 'Forte'
-                : 'Novo';
+                ? 'Strong'
+                : 'New';
     const topicStatusTone = currentTopicProgress?.status === 'WEAK'
         ? 'border-rose-500/30 bg-rose-500/10 text-rose-200'
         : currentTopicProgress?.status === 'EVOLVING'
@@ -249,10 +249,10 @@ function SessionContent() {
                                 <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] ${
                                     isReinforcementPhase ? 'bg-purple-500/15 text-purple-300' : 'bg-blue-500/15 text-blue-300'
                                 }`}>
-                                    {isReinforcementPhase ? 'Bloco de reforco' : 'Bloco principal'}
+                                    {isReinforcementPhase ? 'Reinforcement block' : 'Main block'}
                                 </span>
                                 <span className="rounded-full border border-slate-700 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                                    Questao {uiCurrent} de {uiTotal}
+                                    Question {uiCurrent} of {uiTotal}
                                 </span>
                                 {programTitle ? (
                                     <span className="rounded-full border border-slate-700 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
@@ -263,7 +263,7 @@ function SessionContent() {
 
                             <div>
                                 <p className="text-sm font-semibold text-slate-100">
-                                    {programTitle || (mode === 'smart' ? 'Treino inteligente' : mode === 'topic' ? 'Treino por topico' : 'Treino por dominio')}
+                                    {programTitle || (mode === 'smart' ? 'Smart training' : mode === 'topic' ? 'Domain training' : 'Domain training')}
                                 </p>
                                 {topicContextLabel ? (
                                     <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-slate-400">
@@ -277,7 +277,7 @@ function SessionContent() {
                             onClick={() => router.push(exitHref)}
                             className="self-start rounded-full border border-slate-700 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-slate-300 transition hover:border-slate-500 hover:text-white"
                         >
-                            Sair da sessao
+                            Exit session
                         </button>
                     </div>
                 </div>
@@ -292,7 +292,7 @@ function SessionContent() {
                                 {currentQuestion.isReinforcement ? (
                                     <span className="ml-2 inline-flex items-center rounded border border-blue-500/20 bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold text-blue-400 animate-pulse">
                                         <span className="mr-1">R</span>
-                                        Reforco de memoria
+                                        Memory reinforcement
                                     </span>
                                 ) : null}
                             </h1>
@@ -337,7 +337,7 @@ function SessionContent() {
                                         : 'cursor-not-allowed border border-slate-700 bg-slate-800 text-slate-500'
                                 }`}
                             >
-                                Confirmar resposta
+                                Confirm answer
                             </button>
                         ) : null}
                     </div>
@@ -345,55 +345,55 @@ function SessionContent() {
 
                 <div className="flex flex-col gap-6">
                     <div className="rounded-[2rem] border border-slate-800 bg-slate-950/70 p-5 md:p-6">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Contexto da sessao</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Session Context</p>
                         <div className="mt-4 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
                             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Fase</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Phase</p>
                                 <p className="mt-2 text-sm font-bold text-slate-100">
-                                    {isReinforcementPhase ? 'Reforco estrategico' : 'Aprendizagem principal'}
+                                    {isReinforcementPhase ? 'Strategic reinforcement' : 'Main learning'}
                                 </p>
                             </div>
                             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Progresso</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Progress</p>
                                 <p className="mt-2 text-sm font-bold text-slate-100">{Math.round(progressPercentage)}%</p>
                             </div>
                             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Modo</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Mode</p>
                                 <p className="mt-2 text-sm font-bold text-slate-100">
-                                    {mode === 'smart' ? 'Smart' : mode === 'topic' ? 'Topico' : 'Dominio'}
+                                    {mode === 'smart' ? 'Smart' : mode === 'topic' ? 'Topic' : 'Domain'}
                                 </p>
                             </div>
                         </div>
                     </div>
 
                     <div className="rounded-[2rem] border border-slate-800 bg-slate-950/70 p-5 md:p-6">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Pulso cognitivo</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Cognitive pulse</p>
                         <div className="mt-4 space-y-3">
                             <div className={`rounded-2xl border px-4 py-3 ${topicStatusTone}`}>
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Topico atual</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Current topic</p>
                                 <p className="mt-2 text-sm font-black">{topicStatusLabel}</p>
                                 <p className="mt-1 text-xs opacity-80">
                                     {currentTopicProgress
-                                        ? `Acuracia ${currentTopicProgress.accuracy}% em ${currentTopicProgress.attempts} tentativa(s).`
-                                        : 'Este topico ainda nao tem historico suficiente.'}
+                                        ? `Accuracy ${currentTopicProgress.accuracy}% in ${currentTopicProgress.attempts} attempt(s).`
+                                        : 'This topic does not have enough history yet.'}
                                 </p>
                             </div>
 
                             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                                 <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Precisam voltar</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Needs review</p>
                                     <p className="mt-2 text-2xl font-black text-rose-300">{weakCount}</p>
                                 </div>
                                 <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Consolidando</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Consolidating</p>
                                     <p className="mt-2 text-2xl font-black text-amber-300">{evolvingCount}</p>
                                 </div>
                                 <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Ja fortes</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Already strong</p>
                                     <p className="mt-2 text-2xl font-black text-emerald-300">{strongCount}</p>
                                 </div>
                                 <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Acuracia da sessao</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Session accuracy</p>
                                     <p className="mt-2 text-2xl font-black text-slate-100">{sessionAccuracy}%</p>
                                 </div>
                             </div>
@@ -404,12 +404,12 @@ function SessionContent() {
                         <div className="space-y-4 rounded-[2rem] border border-slate-800 bg-slate-950/80 p-6">
                             <div className="flex items-center space-x-2">
                                 <span className={`text-base font-black ${answerFeedback.isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                    {answerFeedback.isCorrect ? 'Excelente' : 'Atencao ao conceito'}
+                                    {answerFeedback.isCorrect ? 'Excellent' : 'Pay attention to the concept'}
                                 </span>
                             </div>
                             {!answerFeedback.isCorrect && topicContextLabel ? (
                                 <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-                                    Sugestao cognitiva: volte a revisar <strong>{topicContextLabel}</strong> enquanto este contexto ainda esta ativo.
+                                    Cognitive suggestion: review <strong>{topicContextLabel}</strong> later while this context is active.
                                 </div>
                             ) : null}
                             <p className="text-sm font-medium leading-relaxed text-slate-300">
@@ -419,12 +419,12 @@ function SessionContent() {
                                 onClick={handleNext}
                                 className="w-full rounded-xl bg-slate-50 py-4 text-sm font-bold uppercase tracking-[0.2em] text-slate-950 shadow-lg transition-all active:scale-95"
                             >
-                                {answerFeedback.nextQuestion ? 'Proxima questao' : 'Ver resultados'}
+                                {answerFeedback.nextQuestion ? 'Next question' : 'View results'}
                             </button>
                         </div>
                     ) : (
                         <div className="rounded-[2rem] border border-dashed border-slate-800 bg-slate-950/60 p-6 text-sm leading-relaxed text-slate-500">
-                            Selecione uma alternativa e confirme para ver o feedback cognitivo desta questao.
+                            Select an option and confirm to view cognitive feedback.
                         </div>
                     )}
                 </div>
@@ -435,7 +435,7 @@ function SessionContent() {
 
 export default function SessionPage() {
     return (
-        <Suspense fallback={<div className="p-20 text-center text-slate-400">Carregando parametros...</div>}>
+        <Suspense fallback={<div className="p-20 text-center text-slate-400">Loading parameters...</div>}>
             <SessionContent />
         </Suspense>
     );

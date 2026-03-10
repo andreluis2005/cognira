@@ -61,7 +61,7 @@ export default async function ProgramsPage({
                             Encontre um programa para estudar de forma mais inteligente.
                         </h1>
                         <p className="max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
-                            Catalogo multi-assunto para provas, concursos, certificacoes e trilhas autorais. O foco nao e
+                            Multi-subject catalog for exams, competitions, certifications, and author tracks. The focus is not
                             volume de questoes: e retencao real antes do dia da prova.
                         </p>
                         <div className="flex flex-wrap gap-3">

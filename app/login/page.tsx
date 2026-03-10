@@ -13,9 +13,9 @@ export default async function LoginPage({
             <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center gap-8">
                 <div className="space-y-3">
                     <p className="text-xs font-black uppercase tracking-[0.3em] text-sky-400">Cognira</p>
-                    <h1 className="text-4xl font-black tracking-tight">Entrar</h1>
+                    <h1 className="text-4xl font-black tracking-tight">Log in</h1>
                     <p className="text-sm text-zinc-400">
-                        Acesso simples para estudantes e criadores com Supabase no plano gratuito.
+                        Simple access for students and creators with Supabase on the free plan.
                     </p>
                 </div>
 
@@ -36,7 +36,7 @@ export default async function LoginPage({
 
                     <div className="space-y-2">
                         <label htmlFor="password" className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">
-                            Senha
+                            Password
                         </label>
                         <input
                             id="password"
@@ -57,14 +57,14 @@ export default async function LoginPage({
                         type="submit"
                         className="w-full rounded-2xl bg-sky-300 px-4 py-4 text-sm font-black uppercase tracking-[0.2em] text-black transition hover:bg-sky-200"
                     >
-                        Entrar
+                        Log in
                     </button>
                 </form>
 
                 <p className="text-sm text-zinc-500">
-                    Ainda nao tem conta?{' '}
+                    Don't have an account yet?{' '}
                     <Link href={params.redirectTo ? `/signup?redirectTo=${encodeURIComponent(params.redirectTo)}` : '/signup'} className="font-bold text-zinc-200">
-                        Criar conta
+                        Sign up
                     </Link>
                 </p>
             </div>

@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'Cognira',
-    description: 'Plataforma de aprendizado orientada a aprovacao com motor cognitivo e estudo baseado em questoes.',
+    description: 'Approval-oriented learning platform with cognitive engine and question-based studying.',
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="pt-BR">
+        <html lang="en">
             <body className={`${inter.className} min-h-screen bg-slate-950 text-slate-50`}>
                 <SiteHeader />
                 <main className="min-h-screen px-4 py-6 md:px-6">

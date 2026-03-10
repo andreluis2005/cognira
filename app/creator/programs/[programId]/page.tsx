@@ -24,17 +24,17 @@ import { getCreatorProgramById } from '@/lib/db/queries';
 import { createClient } from '@/lib/supabase/server';
 
 function getFlagMessage(query: Record<string, string | undefined>) {
-    if (query.programUpdated) return 'Programa atualizado com sucesso.';
-    if (query.submitted) return 'Programa enviado para revisao editorial.';
-    if (query.trailCreated) return 'Trilha criada com sucesso.';
-    if (query.trailUpdated) return 'Trilha atualizada com sucesso.';
-    if (query.trailDeleted) return 'Trilha removida com sucesso.';
-    if (query.topicCreated) return 'Topico criado com sucesso.';
-    if (query.topicUpdated) return 'Topico atualizado com sucesso.';
-    if (query.topicDeleted) return 'Topico removido com sucesso.';
-    if (query.questionCreated) return 'Questao criada com sucesso.';
-    if (query.questionUpdated) return 'Questao atualizada com sucesso.';
-    if (query.questionDeleted) return 'Questao removida com sucesso.';
+    if (query.programUpdated) return 'Program updated successfully.';
+    if (query.submitted) return 'Program sent for editorial review.';
+    if (query.trailCreated) return 'Track created successfully.';
+    if (query.trailUpdated) return 'Track updated successfully.';
+    if (query.trailDeleted) return 'Track removed successfully.';
+    if (query.topicCreated) return 'Topic created successfully.';
+    if (query.topicUpdated) return 'Topic updated successfully.';
+    if (query.topicDeleted) return 'Topic removed successfully.';
+    if (query.questionCreated) return 'Question created successfully.';
+    if (query.questionUpdated) return 'Question updated successfully.';
+    if (query.questionDeleted) return 'Question removed successfully.';
     return null;
 }
 
@@ -112,25 +112,25 @@ export default async function CreatorProgramDetailPage({
                                     <form action={unpublishProgram}>
                                         <input type="hidden" name="program_id" value={program.id} />
                                         <button className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-bold text-zinc-200">
-                                            Voltar para rascunho
+                                            Return to draft
                                         </button>
                                     </form>
                                     <form action={archiveProgram}>
                                         <input type="hidden" name="program_id" value={program.id} />
                                         <button className="rounded-2xl border border-amber-500/40 px-5 py-3 text-sm font-bold text-amber-200">
-                                            Arquivar
+                                            Archive
                                         </button>
                                     </form>
                                 </>
                             ) : program.reviewStatus === 'submitted' ? (
                                 <span className="rounded-2xl border border-amber-500/40 px-5 py-3 text-sm font-bold text-amber-200">
-                                    Em revisao editorial
+                                    Under editorial review
                                 </span>
                             ) : (
                                 <form action={submitProgramForReview}>
                                     <input type="hidden" name="program_id" value={program.id} />
                                     <button className="rounded-2xl bg-sky-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                        Enviar para revisao
+                                        Send for review
                                     </button>
                                 </form>
                             )}
@@ -139,7 +139,7 @@ export default async function CreatorProgramDetailPage({
                                 href={program.status === 'published' ? `/programs/${program.slug}` : '/programs'}
                                 className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-bold text-zinc-200"
                             >
-                                {program.status === 'published' ? 'Ver pagina publica' : 'Ver catalogo'}
+                                {program.status === 'published' ? 'See public page' : 'See catalog'}
                             </Link>
                         </div>
                     </div>
@@ -163,15 +163,15 @@ export default async function CreatorProgramDetailPage({
                         <p className="mt-3 text-xl font-black capitalize">{program.status}</p>
                     </div>
                     <div className="rounded-3xl border border-zinc-800 bg-zinc-950/60 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Visibilidade</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Visibility</p>
                         <p className="mt-3 text-xl font-black capitalize">{program.visibility}</p>
                     </div>
                     <div className="rounded-3xl border border-zinc-800 bg-zinc-950/60 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Trilhas</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Tracks</p>
                         <p className="mt-3 text-xl font-black">{program.trails.length}</p>
                     </div>
                     <div className="rounded-3xl border border-zinc-800 bg-zinc-950/60 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Questoes</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Questions</p>
                         <p className="mt-3 text-xl font-black">{program.questions.length}</p>
                     </div>
                 </section>
@@ -182,15 +182,15 @@ export default async function CreatorProgramDetailPage({
                             <input type="hidden" name="program_id" value={program.id} />
                             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Programa</p>
-                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Dados principais</h2>
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Program</p>
+                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Main details</h2>
                                 </div>
-                                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Slug publico: {program.slug}</p>
+                                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Public slug: {program.slug}</p>
                             </div>
 
                             <div className="mt-6 grid gap-4 md:grid-cols-2">
                                 <label className="space-y-2 md:col-span-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Titulo</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Title</span>
                                     <input
                                         name="title"
                                         required
@@ -200,7 +200,7 @@ export default async function CreatorProgramDetailPage({
                                 </label>
 
                                 <label className="space-y-2 md:col-span-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Descricao curta</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Short description</span>
                                     <textarea
                                         name="short_description"
                                         required
@@ -211,7 +211,7 @@ export default async function CreatorProgramDetailPage({
                                 </label>
 
                                 <label className="space-y-2 md:col-span-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Descricao longa</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Long description</span>
                                     <textarea
                                         name="long_description"
                                         rows={5}
@@ -221,7 +221,7 @@ export default async function CreatorProgramDetailPage({
                                 </label>
 
                                 <label className="space-y-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Area</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Subject area</span>
                                     <input
                                         name="subject_area"
                                         required
@@ -231,7 +231,7 @@ export default async function CreatorProgramDetailPage({
                                 </label>
 
                                 <label className="space-y-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Tipo de prova</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Exam type</span>
                                     <input
                                         name="exam_type"
                                         defaultValue={program.examType || ''}
@@ -240,38 +240,38 @@ export default async function CreatorProgramDetailPage({
                                 </label>
 
                                 <label className="space-y-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Monetizacao</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Monetization</span>
                                     <select
                                         name="monetization_type"
                                         defaultValue={program.monetizationType}
                                         className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                     >
-                                        <option value="free">Gratis</option>
-                                        <option value="donation">Doacao</option>
-                                        <option value="paid">Pago</option>
+                                        <option value="free">Free</option>
+                                        <option value="donation">Donation</option>
+                                        <option value="paid">Paid</option>
                                     </select>
                                 </label>
 
                                 <label className="space-y-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Visibilidade</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Visibility</span>
                                     <select
                                         name="visibility"
                                         defaultValue={program.visibility}
                                         className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                     >
-                                        <option value="public">Publico</option>
-                                        <option value="private">Privado</option>
-                                        <option value="unlisted">Nao listado</option>
+                                        <option value="public">Public</option>
+                                        <option value="private">Private</option>
+                                        <option value="unlisted">Unlisted</option>
                                     </select>
                                 </label>
                             </div>
 
                             <div className="mt-6 flex flex-wrap gap-3">
                                 <button className="rounded-2xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                    Salvar ajustes
+                                    Save changes
                                 </button>
                                 <Link href="/creator" className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-bold text-zinc-200">
-                                    Voltar para studio
+                                    Back to studio
                                 </Link>
                             </div>
                         </form>
@@ -279,16 +279,16 @@ export default async function CreatorProgramDetailPage({
                         <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6 md:p-7">
                             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Trilhas</p>
-                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Estrutura macro</h2>
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Tracks</p>
+                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Macro structure</h2>
                                 </div>
-                                <span className="text-xs uppercase tracking-[0.2em] text-zinc-500">{program.trails.length} registradas</span>
+                                <span className="text-xs uppercase tracking-[0.2em] text-zinc-500">{program.trails.length} registered</span>
                             </div>
 
                             <div className="mt-6 grid gap-4">
                                 {program.trails.length === 0 ? (
                                     <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-500">
-                                        Nenhuma trilha criada ainda.
+                                        No track created yet.
                                     </div>
                                 ) : (
                                     program.trails.map((trail) => (
@@ -298,7 +298,7 @@ export default async function CreatorProgramDetailPage({
                                             <div className="grid gap-4 md:grid-cols-[1fr_auto]">
                                                 <div className="space-y-4">
                                                     <label className="space-y-2">
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Titulo da trilha</span>
+                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Track title</span>
                                                         <input
                                                             name="title"
                                                             required
@@ -307,7 +307,7 @@ export default async function CreatorProgramDetailPage({
                                                         />
                                                     </label>
                                                     <label className="space-y-2">
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Descricao</span>
+                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Description</span>
                                                         <textarea
                                                             name="description"
                                                             rows={3}
@@ -323,13 +323,13 @@ export default async function CreatorProgramDetailPage({
                                                     </span>
                                                     <div className="flex flex-col gap-3">
                                                         <button className="rounded-2xl bg-emerald-300 px-4 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                                            Salvar
+                                                            Save
                                                         </button>
                                                         <button
                                                             formAction={deleteTrail}
                                                             className="rounded-2xl border border-rose-500/40 px-4 py-3 text-sm font-bold text-rose-200"
                                                         >
-                                                            Remover
+                                                            Remove
                                                         </button>
                                                     </div>
                                                 </div>
@@ -343,16 +343,16 @@ export default async function CreatorProgramDetailPage({
                         <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6 md:p-7">
                             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Topicos</p>
-                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Mapa de conhecimento</h2>
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Topics</p>
+                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Knowledge map</h2>
                                 </div>
-                                <span className="text-xs uppercase tracking-[0.2em] text-zinc-500">{program.topics.length} ativos</span>
+                                <span className="text-xs uppercase tracking-[0.2em] text-zinc-500">{program.topics.length} active</span>
                             </div>
 
                             <div className="mt-6 grid gap-4">
                                 {program.topics.length === 0 ? (
                                     <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-500">
-                                        Nenhum topico criado ainda.
+                                        No topic created yet.
                                     </div>
                                 ) : (
                                     program.topics.map((topic) => (
@@ -363,7 +363,7 @@ export default async function CreatorProgramDetailPage({
                                                 <div className="space-y-4 xl:col-span-2">
                                                     <div className="grid gap-4 md:grid-cols-2">
                                                         <label className="space-y-2 md:col-span-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Titulo do topico</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Topic title</span>
                                                             <input
                                                                 name="title"
                                                                 required
@@ -373,13 +373,13 @@ export default async function CreatorProgramDetailPage({
                                                         </label>
 
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Trilha</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Track</span>
                                                             <select
                                                                 name="trail_id"
                                                                 defaultValue={topic.trailId || ''}
                                                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                                             >
-                                                                <option value="">Sem trilha associada</option>
+                                                                <option value="">No associated track</option>
                                                                 {program.trails.map((trail) => (
                                                                     <option key={trail.id} value={trail.id}>
                                                                         {trail.title}
@@ -389,22 +389,22 @@ export default async function CreatorProgramDetailPage({
                                                         </label>
 
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Peso na prova</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Exam weight</span>
                                                             <select
                                                                 name="exam_weight"
                                                                 defaultValue={topic.examWeight || ''}
                                                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                                             >
-                                                                <option value="">Nao definido</option>
-                                                                <option value="LOW">Baixo</option>
-                                                                <option value="MEDIUM">Medio</option>
-                                                                <option value="HIGH">Alto</option>
+                                                                <option value="">Undefined</option>
+                                                                <option value="LOW">Low</option>
+                                                                <option value="MEDIUM">Medium</option>
+                                                                <option value="HIGH">High</option>
                                                             </select>
                                                         </label>
                                                     </div>
 
                                                     <label className="space-y-2">
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Descricao</span>
+                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Description</span>
                                                         <textarea
                                                             name="description"
                                                             rows={3}
@@ -420,13 +420,13 @@ export default async function CreatorProgramDetailPage({
                                                     </span>
                                                     <div className="flex flex-col gap-3">
                                                         <button className="rounded-2xl bg-sky-300 px-4 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                                            Salvar
+                                                            Save
                                                         </button>
                                                         <button
                                                             formAction={deleteTopic}
                                                             className="rounded-2xl border border-rose-500/40 px-4 py-3 text-sm font-bold text-rose-200"
                                                         >
-                                                            Remover
+                                                            Remove
                                                         </button>
                                                     </div>
                                                 </div>
@@ -440,16 +440,16 @@ export default async function CreatorProgramDetailPage({
                         <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6 md:p-7">
                             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Questoes</p>
-                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Banco editavel</h2>
+                                    <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Questions</p>
+                                    <h2 className="mt-2 text-2xl font-black tracking-tight">Editable bank</h2>
                                 </div>
-                                <span className="text-xs uppercase tracking-[0.2em] text-zinc-500">{program.questions.length} cadastradas</span>
+                                <span className="text-xs uppercase tracking-[0.2em] text-zinc-500">{program.questions.length} registered</span>
                             </div>
 
                             <div className="mt-6 grid gap-4">
                                 {program.questions.length === 0 ? (
                                     <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-500">
-                                        Nenhuma questao criada ainda.
+                                        No question created yet.
                                     </div>
                                 ) : (
                                     program.questions.map((question, index) => (
@@ -459,7 +459,7 @@ export default async function CreatorProgramDetailPage({
 
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <span className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
-                                                    Questao {index + 1}
+                                                    Question {index + 1}
                                                 </span>
                                                 <span className="rounded-full border border-zinc-700 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
                                                     {question.status}
@@ -470,7 +470,7 @@ export default async function CreatorProgramDetailPage({
                                                 <div className="space-y-4">
                                                     <div className="grid gap-4 md:grid-cols-2">
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Topico</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Topic</span>
                                                             <select
                                                                 name="topic_id"
                                                                 required
@@ -486,21 +486,21 @@ export default async function CreatorProgramDetailPage({
                                                         </label>
 
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Dificuldade</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Difficulty</span>
                                                             <select
                                                                 name="difficulty_level"
                                                                 defaultValue={question.difficultyLevel}
                                                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm outline-none transition focus:border-violet-400"
                                                             >
-                                                                <option value="easy">Facil</option>
-                                                                <option value="medium">Media</option>
-                                                                <option value="hard">Dificil</option>
+                                                                <option value="easy">Easy</option>
+                                                                <option value="medium">Medium</option>
+                                                                <option value="hard">Hard</option>
                                                             </select>
                                                         </label>
                                                     </div>
 
                                                     <label className="space-y-2">
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Enunciado</span>
+                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Stem</span>
                                                         <textarea
                                                             name="stem"
                                                             rows={4}
@@ -512,7 +512,7 @@ export default async function CreatorProgramDetailPage({
 
                                                     <div className="grid gap-3 md:grid-cols-2">
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Alternativa A</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Option A</span>
                                                             <input
                                                                 name="option_a"
                                                                 required
@@ -521,7 +521,7 @@ export default async function CreatorProgramDetailPage({
                                                             />
                                                         </label>
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Alternativa B</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Option B</span>
                                                             <input
                                                                 name="option_b"
                                                                 required
@@ -530,7 +530,7 @@ export default async function CreatorProgramDetailPage({
                                                             />
                                                         </label>
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Alternativa C</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Option C</span>
                                                             <input
                                                                 name="option_c"
                                                                 required
@@ -539,7 +539,7 @@ export default async function CreatorProgramDetailPage({
                                                             />
                                                         </label>
                                                         <label className="space-y-2">
-                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Alternativa D</span>
+                                                            <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Option D</span>
                                                             <input
                                                                 name="option_d"
                                                                 required
@@ -550,7 +550,7 @@ export default async function CreatorProgramDetailPage({
                                                     </div>
 
                                                     <label className="space-y-2">
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Resposta correta</span>
+                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Correct Answer</span>
                                                         <select
                                                             name="correct_option"
                                                             defaultValue={getCorrectOption(question.options)}
@@ -564,7 +564,7 @@ export default async function CreatorProgramDetailPage({
                                                     </label>
 
                                                     <label className="space-y-2">
-                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Explicacao</span>
+                                                        <span className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Explanation</span>
                                                         <textarea
                                                             name="explanation"
                                                             rows={4}
@@ -581,13 +581,13 @@ export default async function CreatorProgramDetailPage({
                                                     </span>
                                                     <div className="flex flex-col gap-3">
                                                         <button className="rounded-2xl bg-violet-300 px-4 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                                            Salvar
+                                                            Save
                                                         </button>
                                                         <button
                                                             formAction={deleteQuestion}
                                                             className="rounded-2xl border border-rose-500/40 px-4 py-3 text-sm font-bold text-rose-200"
                                                         >
-                                                            Remover
+                                                            Remove
                                                         </button>
                                                     </div>
                                                 </div>
@@ -603,14 +603,14 @@ export default async function CreatorProgramDetailPage({
                         <form action={createAIGenerationJob} className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6">
                             <input type="hidden" name="program_id" value={program.id} />
                             <input type="hidden" name="exam_type" value={program.examType || ''} />
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Brief para IA</p>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">AI Brief</p>
                             <h2 className="mt-2 text-2xl font-black tracking-tight">
-                                {isConcursoProgram ? 'Geracao guiada por incidencia de prova' : 'Geracao guiada por objetivo pedagógico'}
+                                {isConcursoProgram ? 'Generation guided by test incidence' : 'Generation guided by pedagogical objective'}
                             </h2>
                             <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                                 {isConcursoProgram
-                                    ? 'Para concursos, o brief pede banca, cargo, padroes historicos e temas mais incidentes. Isso prepara o pipeline para gerar questoes priorizando o que mais tende a cair.'
-                                    : 'Use este brief para orientar futuros lotes de questoes com foco em memorizacao, cobertura e progressao do estudante.'}
+                                    ? 'For civil service exams, the brief requests the board, role, historical patterns, and most frequent themes. This prepares the pipeline to generate questions prioritizing what is more likely to appear on the test.'
+                                    : 'Use this brief to guide future batches of questions focusing on memorization, coverage, and student progression.'}
                             </p>
 
                             <div className="mt-5 space-y-4">
@@ -618,7 +618,7 @@ export default async function CreatorProgramDetailPage({
                                     name="objective"
                                     required
                                     rows={3}
-                                    placeholder="Objetivo do lote: o que a IA deve priorizar neste conjunto de questoes?"
+                                    placeholder="Batch objective: what should the AI prioritize in this set of questions?"
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                 />
 
@@ -628,7 +628,7 @@ export default async function CreatorProgramDetailPage({
                                         defaultValue=""
                                         className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                     >
-                                        <option value="">Sem trilha especifica</option>
+                                        <option value="">No specific track</option>
                                         {program.trails.map((trail) => (
                                             <option key={trail.id} value={trail.id}>{trail.title}</option>
                                         ))}
@@ -638,7 +638,7 @@ export default async function CreatorProgramDetailPage({
                                         defaultValue=""
                                         className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                     >
-                                        <option value="">Sem topico especifico</option>
+                                        <option value="">No specific topic</option>
                                         {program.topics.map((topic) => (
                                             <option key={topic.id} value={topic.id}>{topic.title}</option>
                                         ))}
@@ -650,30 +650,30 @@ export default async function CreatorProgramDetailPage({
                                         <div className="grid gap-4 md:grid-cols-2">
                                             <input
                                                 name="board_name"
-                                                placeholder="Banca: CESPE, FGV, FCC..."
+                                                placeholder="Board: CESPE, FGV, FCC..."
                                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                             />
                                             <input
                                                 name="role_name"
-                                                placeholder="Cargo, area ou orgao"
+                                                placeholder="Role, area, or department"
                                                 className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                             />
                                         </div>
                                         <input
                                             name="exam_year_range"
-                                            placeholder="Recorte de provas anteriores: ex. 2020-2025"
+                                            placeholder="Previous exams range: e.g. 2020-2025"
                                             className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                         />
                                         <textarea
                                             name="priority_themes"
                                             rows={3}
-                                            placeholder="Temas com maior chance de cair, assuntos mais cobrados, recorrencias percebidas..."
+                                            placeholder="Themes more likely to appear, subjects frequently tested, perceived recurrences..."
                                             className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                         />
                                         <textarea
                                             name="evidence_notes"
                                             rows={3}
-                                            placeholder="Anotacoes sobre provas anteriores, estilo da banca, padroes de cobranca e pontos que merecem mais memorizacao"
+                                            placeholder="Notes on previous exams, board style, testing patterns, and points that need more memorization"
                                             className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                         />
                                     </>
@@ -681,7 +681,7 @@ export default async function CreatorProgramDetailPage({
                                     <textarea
                                         name="priority_themes"
                                         rows={3}
-                                        placeholder="Conceitos centrais, erros recorrentes ou assuntos que merecem maior reforco"
+                                        placeholder="Core concepts, recurring errors, or subjects that need more reinforcement"
                                         className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                     />
                                 )}
@@ -689,7 +689,7 @@ export default async function CreatorProgramDetailPage({
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <input
                                         name="difficulty_mix"
-                                        placeholder="Distribuicao: 60% medio, 30% facil, 10% dificil"
+                                        placeholder="Distribution: 60% medium, 30% easy, 10% hard"
                                         className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                     />
                                     <input
@@ -704,61 +704,61 @@ export default async function CreatorProgramDetailPage({
 
                                 <input
                                     name="source_material_url"
-                                    placeholder="URL de edital, apostila ou material de referencia"
+                                    placeholder="URL for syllabus, handout, or reference material"
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                 />
                                 <textarea
                                     name="source_material_text"
                                     rows={4}
-                                    placeholder="Trechos importantes, edital resumido ou orientacoes adicionais para a geracao"
+                                    placeholder="Important excerpts, summarized syllabus, or additional guidelines for generation"
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-fuchsia-400"
                                 />
                                 <input type="hidden" name="provider_name" value="manual-brief" />
 
                                 <button className="w-full rounded-2xl bg-fuchsia-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                    Salvar brief de geracao
+                                    Save generation brief
                                 </button>
                             </div>
                         </form>
 
                         <form action={createTrail} className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6">
                             <input type="hidden" name="program_id" value={program.id} />
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Nova trilha</p>
-                            <h2 className="mt-2 text-2xl font-black tracking-tight">Adicionar etapa macro</h2>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">New track</p>
+                            <h2 className="mt-2 text-2xl font-black tracking-tight">Add macro step</h2>
                             <div className="mt-5 space-y-4">
                                 <input
                                     name="title"
                                     required
-                                    placeholder="Ex.: Fundamentos, Revisao final..."
+                                    placeholder="e.g. Fundamentals, Final review..."
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
                                 />
                                 <textarea
                                     name="description"
                                     rows={3}
-                                    placeholder="Descricao curta da trilha"
+                                    placeholder="Short description of the track"
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-emerald-500"
                                 />
                                 <button className="w-full rounded-2xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                    Criar trilha
+                                    Create track
                                 </button>
                             </div>
                         </form>
 
                         <form action={createTopic} className="rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6">
                             <input type="hidden" name="program_id" value={program.id} />
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Novo topico</p>
-                            <h2 className="mt-2 text-2xl font-black tracking-tight">Adicionar assunto</h2>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">New topic</p>
+                            <h2 className="mt-2 text-2xl font-black tracking-tight">Add subject</h2>
                             <div className="mt-5 space-y-4">
                                 <input
                                     name="title"
                                     required
-                                    placeholder="Ex.: IAM, Algebra, Interpretacao..."
+                                    placeholder="e.g. IAM, Algebra, Comprehension..."
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                 />
                                 <textarea
                                     name="description"
                                     rows={3}
-                                    placeholder="Descricao curta do topico"
+                                    placeholder="Short description of the topic"
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                 />
                                 <select
@@ -766,7 +766,7 @@ export default async function CreatorProgramDetailPage({
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                     defaultValue=""
                                 >
-                                    <option value="">Sem trilha associada</option>
+                                    <option value="">No associated track</option>
                                     {program.trails.map((trail) => (
                                         <option key={trail.id} value={trail.id}>
                                             {trail.title}
@@ -778,13 +778,13 @@ export default async function CreatorProgramDetailPage({
                                     className="w-full rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none transition focus:border-sky-500"
                                     defaultValue=""
                                 >
-                                    <option value="">Peso nao definido</option>
-                                    <option value="LOW">Baixo</option>
-                                    <option value="MEDIUM">Medio</option>
-                                    <option value="HIGH">Alto</option>
+                                    <option value="">Weight not defined</option>
+                                    <option value="LOW">Low</option>
+                                    <option value="MEDIUM">Medium</option>
+                                    <option value="HIGH">High</option>
                                 </select>
                                 <button className="w-full rounded-2xl bg-sky-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black">
-                                    Criar topico
+                                    Create topic
                                 </button>
                             </div>
                         </form>
@@ -936,7 +936,7 @@ export default async function CreatorProgramDetailPage({
                                         if (!draft) {
                                             return (
                                                 <div key={item.id} className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-200">
-                                                    Nao foi possivel ler este rascunho.
+                                                    Could not read this draft.
                                                 </div>
                                             );
                                         }

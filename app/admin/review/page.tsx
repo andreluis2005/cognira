@@ -6,7 +6,7 @@ import { listProgramsForReview } from '@/lib/db/queries';
 import { createClient } from '@/lib/supabase/server';
 
 function getMessage(query: Record<string, string | undefined>) {
-    if (query.approved) return 'Programa aprovado e publicado com sucesso.';
+    if (query.approved) return 'Program successfully approved and published.';
     if (query.changesRequested) return 'Programa devolvido para ajustes.';
     if (query.error) return query.error;
     return null;
@@ -30,7 +30,7 @@ export default async function AdminReviewPage({
     try {
         await requireReviewAccess(data.user);
     } catch {
-        redirect('/creator?error=Voce%20nao%20tem%20acesso%20a%20fila%20de%20revisao');
+        redirect('/creator?error=You%20do%20not%20have%20access%20to%20the%20review%20queue');
     }
 
     const programs = await listProgramsForReview();

@@ -31,7 +31,7 @@ function getTopicStatusLabel(status: string) {
     if (status === 'WEAK' || status === 'weak') return 'Fragil';
     if (status === 'EVOLVING' || status === 'evolving') return 'Evoluindo';
     if (status === 'STRONG' || status === 'strong') return 'Forte';
-    return 'Nao avaliado';
+    return 'Not rated';
 }
 
 function getTopicPriorityScore(topic: {
@@ -173,7 +173,7 @@ export default async function LearnerProgramPage({
 
                 {query.reviewSaved ? (
                     <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-                        Avaliacao salva com sucesso.
+                        Rating saved successfully.
                     </div>
                 ) : null}
 
@@ -255,7 +255,7 @@ export default async function LearnerProgramPage({
                         <div className="mt-6 grid gap-4">
                             {program.topicDetails.length === 0 ? (
                                 <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/40 p-5 text-sm text-zinc-500">
-                                    Este programa ainda nao possui topicos suficientes para detalhamento.
+                                    This program does not have enough topics yet for detailing.
                                 </div>
                             ) : (
                                 program.topicDetails.map((topic) => (

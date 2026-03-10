@@ -28,10 +28,10 @@ export default async function CreatorPage({
 
     const ratingLabel = creatorMetrics?.avgRating
         ? `${creatorMetrics.avgRating.toFixed(1)}/5`
-        : 'Sem nota ainda';
+        : 'No rating yet';
     const rankLabel = creatorMetrics?.leaderboardPosition
-        ? `#${creatorMetrics.leaderboardPosition} de ${creatorMetrics.leaderboardSize}`
-        : 'Aguardando sinais';
+        ? `#${creatorMetrics.leaderboardPosition} of ${creatorMetrics.leaderboardSize}`
+        : 'Waiting for signals';
 
     return (
         <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.12),transparent_24%),#0A0A0B] text-white">
@@ -39,21 +39,21 @@ export default async function CreatorPage({
                 <section className="grid gap-6 rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-6 md:p-8 lg:grid-cols-[1.1fr_0.9fr]">
                     <div className="space-y-4">
                         <p className="text-xs font-black uppercase tracking-[0.3em] text-emerald-400">Creator Studio</p>
-                        <h1 className="text-4xl font-black tracking-tight md:text-6xl">Publique conhecimento em formato Cognira.</h1>
+                        <h1 className="text-4xl font-black tracking-tight md:text-6xl">Publish knowledge in Cognira format.</h1>
                         <p className="max-w-2xl text-sm leading-relaxed text-zinc-400 md:text-base">
-                            Monte programas, organize trilhas, topicos e questoes em uma base pronta para virar estudo real.
+                            Build programs, organize tracks, topics, and questions into a base ready to become real study.
                         </p>
                         <div className="rounded-[1.75rem] border border-emerald-500/20 bg-emerald-500/10 p-4">
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">Seu momento</p>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">Your status</p>
                             <p className="mt-2 text-lg font-black">
                                 {creatorMetrics?.publishedPrograms
-                                    ? `Voce ja tem ${creatorMetrics.publishedPrograms} programa${creatorMetrics.publishedPrograms > 1 ? 's' : ''} publicado${creatorMetrics.publishedPrograms > 1 ? 's' : ''}.`
-                                    : 'Seu studio ja esta pronto para publicar o primeiro programa.'}
+                                    ? `You already have ${creatorMetrics.publishedPrograms} published program${creatorMetrics.publishedPrograms > 1 ? 's' : ''}.`
+                                    : 'Your studio is ready to publish the first program.'}
                             </p>
                             <p className="mt-2 text-sm leading-relaxed text-emerald-100/80">
                                 {creatorMetrics?.learnerCount
-                                    ? `${creatorMetrics.learnerCount} aluno${creatorMetrics.learnerCount > 1 ? 's' : ''} ja estudam com seu conteudo.`
-                                    : 'Assim que houver estudo real e avaliacoes, seu score e sua posicao no ranking ficam mais fortes.'}
+                                    ? `${creatorMetrics.learnerCount} student${creatorMetrics.learnerCount > 1 ? 's' : ''} already study with your content.`
+                                    : 'As soon as there is real study and ratings, your score and leaderboard position will grow stronger.'}
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-3">
@@ -61,20 +61,20 @@ export default async function CreatorPage({
                                 href="/creator/programs/new"
                                 className="rounded-2xl bg-emerald-300 px-5 py-3 text-sm font-black uppercase tracking-[0.2em] text-black"
                             >
-                                Novo programa
+                                New program
                             </Link>
                             <Link
                                 href="/programs"
                                 className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-bold text-zinc-200"
                             >
-                                Ver catalogo
+                                See catalog
                             </Link>
                             {canReviewPrograms ? (
                                 <Link
                                     href="/admin/review"
                                     className="rounded-2xl border border-sky-500/40 px-5 py-3 text-sm font-bold text-sky-200"
                                 >
-                                    Fila de revisao
+                                    Review queue
                                 </Link>
                             ) : null}
                         </div>
@@ -82,63 +82,63 @@ export default async function CreatorPage({
 
                     <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
                         <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-900/60 p-5">
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Criador</p>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Creator</p>
                             <p className="mt-3 text-xl font-black">{creatorProfile.displayName}</p>
                             <p className="mt-2 text-sm text-zinc-400">
-                                {creatorMetrics?.headline || 'Perfil sincronizado com auth, banco e marketplace.'}
+                                {creatorMetrics?.headline || 'Profile synced with auth, database, and marketplace.'}
                             </p>
                         </div>
                         <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-900/60 p-5">
                             <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Creator Score</p>
                             <p className="mt-3 text-4xl font-black">{Math.round(creatorMetrics?.creatorScore || 0)}</p>
-                            <p className="mt-2 text-sm text-zinc-400">Leva em conta qualidade percebida, programas publicados e alunos ativos.</p>
+                            <p className="mt-2 text-sm text-zinc-400">Considers perceived quality, published programs, and active students.</p>
                         </div>
                         <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-900/60 p-5">
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Posicao</p>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Position</p>
                             <p className="mt-3 text-xl font-black">{rankLabel}</p>
-                            <p className="mt-2 text-sm text-zinc-400">Ranking atual entre criadores com sinais publicos no marketplace.</p>
+                            <p className="mt-2 text-sm text-zinc-400">Current ranking among creators with public signals on the marketplace.</p>
                         </div>
                     </div>
                 </section>
 
                 <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                     <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-950/70 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Programas ativos</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Active programs</p>
                         <p className="mt-3 text-3xl font-black">{creatorMetrics?.publishedPrograms || 0}</p>
-                        <p className="mt-2 text-sm text-zinc-400">Conteudos publicados e visiveis no catalogo.</p>
+                        <p className="mt-2 text-sm text-zinc-400">Published and visible content in the catalog.</p>
                     </div>
                     <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-950/70 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Rascunhos</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Drafts</p>
                         <p className="mt-3 text-3xl font-black">{creatorMetrics?.draftPrograms || 0}</p>
-                        <p className="mt-2 text-sm text-zinc-400">Programas em construcao, prontos para refinamento editorial.</p>
+                        <p className="mt-2 text-sm text-zinc-400">Programs under construction, ready for editorial refinement.</p>
                     </div>
                     <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-950/70 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Avaliacao media</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Average rating</p>
                         <p className="mt-3 text-3xl font-black">{ratingLabel}</p>
-                        <p className="mt-2 text-sm text-zinc-400">{creatorMetrics?.reviewCount || 0} avaliacao(oes) consolidadas.</p>
+                        <p className="mt-2 text-sm text-zinc-400">{creatorMetrics?.reviewCount || 0} consolidated rating(s).</p>
                     </div>
                     <div className="rounded-[1.75rem] border border-zinc-800 bg-zinc-950/70 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Alunos ativos</p>
+                        <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Active students</p>
                         <p className="mt-3 text-3xl font-black">{creatorMetrics?.learnerCount || 0}</p>
-                        <p className="mt-2 text-sm text-zinc-400">Pessoas matriculadas em programas publicados por voce.</p>
+                        <p className="mt-2 text-sm text-zinc-400">People enrolled in programs published by you.</p>
                     </div>
                 </section>
 
                 {params.created ? (
                     <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-                        Programa criado com sucesso.
+                        Program successfully created.
                     </div>
                 ) : null}
 
                 {params.submitted ? (
                     <div className="rounded-3xl border border-sky-500/30 bg-sky-500/10 p-4 text-sm text-sky-200">
-                        Programa enviado para revisao editorial.
+                        Program sent for editorial review.
                     </div>
                 ) : null}
 
                 {params.archived ? (
                     <div className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
-                        Programa arquivado e removido da vitrine publica.
+                        Program archived and removed from public storefront.
                     </div>
                 ) : null}
 
@@ -151,17 +151,17 @@ export default async function CreatorPage({
                 <section className="space-y-4">
                     <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
                         <div>
-                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Seus programas</p>
-                            <h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">Base editorial</h2>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500">Your programs</p>
+                            <h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">Editorial base</h2>
                         </div>
-                        <p className="text-sm text-zinc-500">{programs.length} programas cadastrados</p>
+                        <p className="text-sm text-zinc-500">{programs.length} registered programs</p>
                     </div>
 
                     {programs.length === 0 ? (
                         <div className="rounded-[2rem] border border-dashed border-zinc-800 bg-zinc-950/50 p-8">
-                            <p className="text-lg font-bold">Nenhum programa criado ainda</p>
+                            <p className="text-lg font-bold">No program created yet</p>
                             <p className="mt-2 max-w-2xl text-sm text-zinc-500">
-                                Comece pelo primeiro programa. Depois voce consegue estruturar trilhas, topicos e questoes.
+                                Start with the first program. Then you can structure tracks, topics, and questions.
                             </p>
                         </div>
                     ) : (
@@ -194,25 +194,25 @@ export default async function CreatorPage({
                                             href={`/creator/programs/${program.id}`}
                                             className="rounded-2xl border border-zinc-700 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-zinc-200"
                                         >
-                                            Estruturar
+                                            Structure
                                         </Link>
                                         {program.status !== 'published' && program.reviewStatus !== 'submitted' ? (
                                             <form action={submitProgramForReview}>
                                                 <input type="hidden" name="program_id" value={program.id} />
                                                 <button className="rounded-2xl bg-sky-300 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-black">
-                                                    Enviar para revisao
+                                                    Send for review
                                                 </button>
                                             </form>
                                         ) : program.reviewStatus === 'submitted' ? (
                                             <span className="rounded-2xl border border-amber-500/40 px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-amber-200">
-                                                Em revisao
+                                                Under review
                                             </span>
                                         ) : (
                                             <Link
                                                 href={`/programs/${program.slug}`}
                                                 className="rounded-2xl bg-zinc-100 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-black"
                                             >
-                                                Ver no catalogo
+                                                See in catalog
                                             </Link>
                                         )}
                                     </div>

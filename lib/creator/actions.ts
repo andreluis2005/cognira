@@ -52,7 +52,7 @@ async function assertProgramOwnership(programId: string) {
     });
 
     if (!ownedProgram) {
-        redirect('/creator?error=Programa%20nao%20encontrado');
+        redirect('/creator?error=Program%20not%20found');
     }
 
     return { user: data.user, creatorProfile, ownedProgram };
@@ -70,7 +70,7 @@ async function assertReviewAccessWithUser() {
         const roles = await requireReviewAccess(data.user);
         return { user: data.user, roles };
     } catch {
-        redirect('/creator?error=Voce%20nao%20tem%20permissao%20para%20aprovar%20publicacoes');
+        redirect('/creator?error=You%20do%20not%20have%20permission%20to%20approve%20publications');
     }
 }
 
@@ -85,7 +85,7 @@ async function assertTrailOwnership(programId: string, trailId: string) {
     });
 
     if (!trail) {
-        redirect(`/creator/programs/${programId}?error=Trilha%20nao%20encontrada`);
+        redirect(`/creator/programs/${programId}?error=Track%20not%20found`);
     }
 
     return trail;
@@ -102,7 +102,7 @@ async function assertTopicOwnership(programId: string, topicId: string) {
     });
 
     if (!topic) {
-        redirect(`/creator/programs/${programId}?error=Topico%20nao%20encontrado`);
+        redirect(`/creator/programs/${programId}?error=Topic%20not%20found`);
     }
 
     return topic;
@@ -119,7 +119,7 @@ async function assertQuestionOwnership(programId: string, questionId: string) {
     });
 
     if (!question) {
-        redirect(`/creator/programs/${programId}?error=Questao%20nao%20encontrada`);
+        redirect(`/creator/programs/${programId}?error=Question%20not%20found`);
     }
 
     return { ...ownership, question };
@@ -137,7 +137,7 @@ async function assertAIGenerationJobOwnership(programId: string, jobId: string) 
     });
 
     if (!job) {
-        redirect(`/creator/programs/${programId}?error=Brief%20de%20geracao%20nao%20encontrado`);
+        redirect(`/creator/programs/${programId}?error=Generation%20brief%20not%20found`);
     }
 
     return { user, job };
@@ -170,7 +170,7 @@ async function assertAIGenerationItemOwnership(programId: string, itemId: string
     const item = rows[0];
 
     if (!item) {
-        redirect(`/creator/programs/${programId}?error=Rascunho%20de%20IA%20nao%20encontrado`);
+        redirect(`/creator/programs/${programId}?error=AI%20draft%20not%20found`);
     }
 
     return { user, item };
@@ -474,7 +474,7 @@ export async function approveProgramPublication(formData: FormData) {
     });
 
     if (!program) {
-        redirect('/admin/review?error=Programa%20nao%20encontrado');
+        redirect('/admin/review?error=Program%20not%20found');
     }
 
     await db
@@ -508,7 +508,7 @@ export async function requestProgramChanges(formData: FormData) {
     });
 
     if (!program) {
-        redirect('/admin/review?error=Programa%20nao%20encontrado');
+        redirect('/admin/review?error=Program%20not%20found');
     }
 
     await db
@@ -959,7 +959,7 @@ export async function generateAIDraftItems(formData: FormData) {
     ]);
 
     if (!program) {
-        redirect(`/creator/programs/${programId}?error=Programa%20nao%20encontrado`);
+        redirect(`/creator/programs/${programId}?error=Program%20not%20found`);
     }
 
     const fallbackTopic = topic || await db.query.topics.findFirst({
